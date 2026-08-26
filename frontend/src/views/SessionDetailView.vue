@@ -30,13 +30,17 @@ const session = computed(() => program.sessionById(props.id));
 
     <template v-else>
       <div class="flex items-start justify-between gap-3 mb-2">
-        <span v-if="session.track" class="px-2.5 py-1 rounded-full text-xs font-semibold" :style="session.track.color ? { backgroundColor: session.track.color + '22', color: session.track.color } : {}">
+        <span
+          v-if="session.track"
+          class="px-2.5 py-1 rounded-full text-xs font-semibold max-w-[60%] truncate"
+          :style="session.track.color ? { backgroundColor: session.track.color + '22', color: session.track.color } : {}"
+        >
           {{ session.track.name }}
         </span>
         <button
           v-if="auth.isAuthenticated"
           type="button"
-          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 text-sm font-medium"
+          class="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 text-sm font-medium"
           @click="schedule.toggleFavourite(session.id)"
         >
           <Icon name="star" class="w-4 h-4" :class="schedule.isFavourite(session.id) ? 'text-amber-500 fill-amber-500' : ''" />

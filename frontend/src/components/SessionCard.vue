@@ -27,12 +27,14 @@ function toggle(e: Event) {
   >
     <div class="flex items-start justify-between gap-3">
       <div class="min-w-0">
-        <div class="flex items-center gap-2 text-xs font-medium text-brand-700 dark:text-brand-400">
-          <Icon name="clock" class="w-3.5 h-3.5" />
-          {{ formatTime(session.start) }} – {{ formatTime(session.end) }}
+        <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium text-brand-700 dark:text-brand-400">
+          <span class="flex items-center gap-1 shrink-0">
+            <Icon name="clock" class="w-3.5 h-3.5" />
+            {{ formatTime(session.start) }} – {{ formatTime(session.end) }}
+          </span>
           <span
             v-if="session.track"
-            class="px-2 py-0.5 rounded-full text-[11px]"
+            class="px-2 py-0.5 rounded-full text-[11px] max-w-[10rem] truncate"
             :style="session.track.color ? { backgroundColor: session.track.color + '22', color: session.track.color } : {}"
           >
             {{ session.track.name }}
