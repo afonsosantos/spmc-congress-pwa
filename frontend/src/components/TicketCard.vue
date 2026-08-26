@@ -1,10 +1,22 @@
 <script setup lang="ts">
+import { ref, watch } from 'vue';
+import QRCode from 'qrcode';
 import { useI18n } from 'vue-i18n';
 import Icon from '@/components/Icon.vue';
 import { useAuthStore } from '@/stores/auth';
 
 const { t } = useI18n();
 const auth = useAuthStore();
+
+// Decorative badge identifier only — not used for physical check-in (see ticket.notice).
+const qrDataUrl = ref('');
+watch(
+  () => auth.user?.id,
+  async (id) => {
+    if (id) qrDataUrl.value = await QRCode.toDataURL(id, { margin: 1, width: 220 });
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -21,6 +33,9 @@ const auth = useAuthStore();
         </span>
       </div>
       <p class="text-lg font-bold mt-0.5">{{ auth.user.name }}</p>
+    </div>
+    <div v-if="qrDataUrl" class="flex justify-center p-5 pb-0">
+      <img :src="qrDataUrl" alt="" class="w-40 h-40" />
     </div>
     <div class="p-5 space-y-3">
       <div class="flex items-center justify-between text-sm">
