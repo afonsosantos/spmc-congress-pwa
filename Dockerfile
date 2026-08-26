@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1
 
 FROM oven/bun:1-alpine AS frontend-build
+ARG GIT_SHA=dev
+ENV VITE_GIT_SHA=$GIT_SHA
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/bun.lock ./
 RUN bun install --frozen-lockfile

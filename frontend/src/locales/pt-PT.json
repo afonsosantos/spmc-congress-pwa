@@ -102,7 +102,8 @@
     "logout": "Terminar sessão",
     "deleteAccount": "Apagar os meus dados desta aplicação",
     "deleteAccountConfirm": "Isto apaga permanentemente os seus dados desta aplicação (o registo no Pretix não é afetado). Continuar?",
-    "viewTicket": "Ver bilhete"
+    "viewTicket": "Ver bilhete",
+    "version": "Versão {version}"
   },
   "login": {
     "title": "Entrar com bilhete",

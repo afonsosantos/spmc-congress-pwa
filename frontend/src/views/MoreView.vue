@@ -69,6 +69,8 @@ async function enablePush() {
             : t('more.pushDisabled');
 }
 
+const appVersion = (import.meta.env.VITE_GIT_SHA ?? 'dev').slice(0, 7);
+
 async function deleteAccount() {
   if (!confirm(t('more.deleteAccountConfirm'))) return;
   deleting.value = true;
@@ -174,5 +176,7 @@ async function deleteAccount() {
         {{ t('more.deleteAccount') }}
       </button>
     </section>
+
+    <p class="text-center text-xs text-slate-400 dark:text-slate-600">{{ t('more.version', { version: appVersion }) }}</p>
   </div>
 </template>
