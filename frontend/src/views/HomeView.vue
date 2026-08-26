@@ -48,7 +48,9 @@ const shortcuts = computed(() => [
   { to: '/bilhete', icon: 'ticket', label: t('home.shortcutTicket'), requiresAuth: true },
   { to: '/meu-horario', icon: 'star', label: t('home.shortcutSchedule'), requiresAuth: false },
   { to: '/anuncios', icon: 'bell', label: t('home.shortcutAnnouncements'), requiresAuth: false },
-  { to: '/info/venue', icon: 'location', label: t('home.shortcutInfo'), requiresAuth: false },
+  // Content pages are admin-managed (slugs can be renamed/removed), so this
+  // links to Mais where they're actually listed, not a specific slug.
+  { to: '/mais', icon: 'location', label: t('home.shortcutInfo'), requiresAuth: false },
 ]);
 </script>
 
