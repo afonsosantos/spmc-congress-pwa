@@ -12,7 +12,8 @@ export default defineConfig(({ command }) => ({
     // access the camera at all. Self-signed, so the browser will warn once.
     ...(command === 'serve' ? [basicSsl()] : []),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
+      injectRegister: false,
       strategies: 'injectManifest',
       srcDir: 'src',
       filename: 'sw.ts',

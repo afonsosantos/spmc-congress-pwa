@@ -150,5 +150,9 @@
     "networkError": "Não foi possível ligar ao servidor.",
     "invalidTicket": "Este bilhete não é válido.",
     "unreadableQr": "Não foi possível ler o QR code."
+  },
+  "update": {
+    "available": "Está disponível uma nova versão.",
+    "reload": "Atualizar"
   }
 }

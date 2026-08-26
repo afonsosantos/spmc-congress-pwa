@@ -150,5 +150,9 @@
     "networkError": "Couldn't connect to the server.",
     "invalidTicket": "This ticket is not valid.",
     "unreadableQr": "Couldn't read the QR code."
+  },
+  "update": {
+    "available": "A new version is available.",
+    "reload": "Reload"
   }
 }

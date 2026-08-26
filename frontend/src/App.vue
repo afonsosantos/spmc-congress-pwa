@@ -7,6 +7,7 @@ import RouteProgressBar from '@/components/RouteProgressBar.vue';
 import InstallPrompt from '@/components/InstallPrompt.vue';
 import OnboardingPrompt from '@/components/OnboardingPrompt.vue';
 import TicketFab from '@/components/TicketFab.vue';
+import UpdatePrompt from '@/components/UpdatePrompt.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useProgramStore } from '@/stores/program';
 import { useAnnouncementsStore } from '@/stores/announcements';
@@ -40,5 +41,6 @@ onMounted(async () => {
   <InstallPrompt />
   <OnboardingPrompt />
   <TicketFab />
+  <UpdatePrompt />
 </template>
 

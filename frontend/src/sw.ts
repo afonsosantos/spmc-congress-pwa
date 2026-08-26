@@ -30,7 +30,12 @@ registerRoute(
   new NetworkFirst({ cacheName: 'announcements-cache', networkTimeoutSeconds: 3 })
 );
 
-self.skipWaiting();
+// Manual update prompt (see UpdatePrompt.vue): only activate a waiting
+// worker once the user confirms via updateServiceWorker(), instead of
+// skipping the wait unconditionally.
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+});
 
 interface PushPayload {
   title?: string;
