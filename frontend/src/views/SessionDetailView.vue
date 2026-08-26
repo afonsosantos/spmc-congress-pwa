@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
 import Icon from '@/components/Icon.vue';
 import EmptyState from '@/components/EmptyState.vue';
+import MarkdownContent from '@/components/MarkdownContent.vue';
 import { useProgramStore } from '@/stores/program';
 import { useScheduleStore } from '@/stores/schedule';
 import { useAuthStore } from '@/stores/auth';
@@ -53,8 +54,8 @@ const session = computed(() => program.sessionById(props.id));
         <span v-if="session.sessionType" class="flex items-center gap-1.5"><Icon name="doc" class="w-4 h-4" />{{ session.sessionType }}</span>
       </div>
 
-      <p v-if="session.abstract" class="text-slate-700 dark:text-slate-200 mb-4 whitespace-pre-line">{{ session.abstract }}</p>
-      <p v-if="session.description" class="text-slate-600 dark:text-slate-300 mb-6 whitespace-pre-line">{{ session.description }}</p>
+      <MarkdownContent v-if="session.abstract" :source="session.abstract" class="mb-4" />
+      <MarkdownContent v-if="session.description" :source="session.description" class="mb-6" />
 
       <div v-if="session.tags.length" class="flex flex-wrap gap-2 mb-6">
         <span v-for="tag in session.tags" :key="tag" class="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-xs">{{ tag }}</span>
@@ -70,7 +71,7 @@ const session = computed(() => program.sessionById(props.id));
             </div>
             <div>
               <p class="font-medium">{{ sp.name }}</p>
-              <p v-if="sp.biography" class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{{ sp.biography }}</p>
+              <MarkdownContent v-if="sp.biography" :source="sp.biography" class="text-sm mt-0.5" />
             </div>
           </div>
         </div>

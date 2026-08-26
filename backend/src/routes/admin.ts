@@ -75,6 +75,13 @@ adminRouter.delete('/announcements/:id', async (req, res) => {
 
 const contentSchema = z.object({ title: z.string().min(1).max(200), body: z.string().max(20000) });
 
+adminRouter.get('/content', async (_req, res) => {
+  const { rows } = await pool.query(
+    'SELECT slug, title, updated_at AS "updatedAt" FROM content_pages ORDER BY slug'
+  );
+  res.json({ pages: rows });
+});
+
 adminRouter.put('/content/:slug', async (req, res) => {
   const parsed = contentSchema.safeParse(req.body);
   if (!parsed.success) {

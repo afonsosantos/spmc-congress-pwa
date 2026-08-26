@@ -163,3 +163,27 @@ test('admin endpoints accept correct admin credentials', async () => {
     .auth('admin', 'super-secret-password');
   assert.equal(res.status, 200);
 });
+
+test('admin can list and update content pages, and the change is publicly visible', async () => {
+  await fakePool._state.contentPages.push({ slug: 'venue', title: 'Local', body: 'placeholder', updatedAt: new Date() });
+
+  const list = await request(app).get('/api/admin/content').auth('admin', 'super-secret-password');
+  assert.equal(list.status, 200);
+  assert.ok(list.body.pages.some((p: { slug: string }) => p.slug === 'venue'));
+
+  const update = await request(app)
+    .put('/api/admin/content/venue')
+    .auth('admin', 'super-secret-password')
+    .send({ title: 'Local do Congresso', body: 'Auditório Principal, Lisboa.' });
+  assert.equal(update.status, 200);
+
+  const publicPage = await request(app).get('/api/content/venue');
+  assert.equal(publicPage.status, 200);
+  assert.equal(publicPage.body.page.title, 'Local do Congresso');
+  assert.equal(publicPage.body.page.body, 'Auditório Principal, Lisboa.');
+});
+
+test('admin content endpoints reject non-admin requests', async () => {
+  const res = await request(app).put('/api/admin/content/venue').send({ title: 'x', body: 'y' });
+  assert.equal(res.status, 401);
+});

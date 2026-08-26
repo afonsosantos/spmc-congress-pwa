@@ -15,6 +15,7 @@ export function createFakePool() {
   const favourites: Row[] = [];
   const announcements: Row[] = [];
   const announcementReads: Row[] = [];
+  const contentPages: Row[] = [];
 
   async function query<T extends Row = Row>(text: string, params: unknown[] = []): Promise<{ rows: T[]; rowCount: number }> {
     const sql = text.replace(/\s+/g, ' ').trim();
@@ -122,6 +123,27 @@ export function createFakePool() {
       return { rows: [] as T[], rowCount: 1 };
     }
 
+    if (sql.startsWith('SELECT slug, title, updated_at AS "updatedAt" FROM content_pages')) {
+      return { rows: contentPages as T[], rowCount: contentPages.length };
+    }
+
+    if (sql.startsWith('SELECT slug, title, body, updated_at AS "updatedAt" FROM content_pages')) {
+      const row = contentPages.find((p) => p.slug === params[0]);
+      return { rows: (row ? [row] : []) as T[], rowCount: row ? 1 : 0 };
+    }
+
+    if (sql.startsWith('INSERT INTO content_pages')) {
+      const [slug, title, body] = params;
+      let row = contentPages.find((p) => p.slug === slug);
+      const updatedAt = new Date();
+      if (row) Object.assign(row, { title, body, updatedAt });
+      else {
+        row = { slug, title, body, updatedAt };
+        contentPages.push(row);
+      }
+      return { rows: [] as T[], rowCount: 1 };
+    }
+
     if (sql.startsWith('SELECT 1')) {
       return { rows: [{ '?column?': 1 }] as T[], rowCount: 1 };
     }
@@ -135,6 +157,6 @@ export function createFakePool() {
       query,
       release: () => {},
     }),
-    _state: { participants, sessions, favourites, announcements, announcementReads },
+    _state: { participants, sessions, favourites, announcements, announcementReads, contentPages },
   };
 }
