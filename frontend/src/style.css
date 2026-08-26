@@ -9,6 +9,11 @@
   body {
     overscroll-behavior-y: none;
   }
+  /* Editorial serif headings, matching congresso-spmc.com's Georgia headlines. */
+  h1,
+  h2 {
+    @apply font-serif;
+  }
 }
 
 @layer utilities {

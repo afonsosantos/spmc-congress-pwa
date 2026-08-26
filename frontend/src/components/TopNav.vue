@@ -25,9 +25,9 @@ function isActive(name: string) {
 </script>
 
 <template>
-  <header class="hidden md:flex sticky top-0 z-40 items-center justify-between px-8 h-16 border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-950/90 backdrop-blur">
-    <RouterLink to="/" class="flex items-center gap-2 font-semibold text-lg text-brand-700 dark:text-brand-400">
-      <span class="w-8 h-8 rounded-lg bg-brand-700 text-white grid place-items-center text-sm font-bold">SP</span>
+  <header class="hidden md:flex sticky top-0 z-40 items-center justify-between px-8 h-16 border-b border-slate-200 dark:border-slate-800 bg-cream/90 dark:bg-slate-950/90 backdrop-blur">
+    <RouterLink to="/" class="flex items-center gap-2 font-serif font-semibold text-lg text-brand-700 dark:text-brand-400">
+      <span class="w-8 h-8 rounded-full bg-brand-700 text-gold-400 grid place-items-center text-xs font-bold">SP</span>
       SPMC 2027
     </RouterLink>
 
@@ -60,7 +60,7 @@ function isActive(name: string) {
     <RouterLink
       v-else
       to="/entrar"
-      class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-700 text-white text-sm font-medium hover:bg-brand-800"
+      class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500 text-white text-sm font-medium hover:bg-gold-600"
     >
       {{ t('nav.loginWithTicket') }}
     </RouterLink>

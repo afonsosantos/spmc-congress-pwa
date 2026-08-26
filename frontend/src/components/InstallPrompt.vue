@@ -102,7 +102,7 @@ onUnmounted(() => {
       :aria-label="t('install.dialogAria')"
     >
       <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-lg p-4 flex items-start gap-3">
-        <div class="w-10 h-10 rounded-xl bg-brand-700 text-white grid place-items-center shrink-0 font-bold text-sm">SP</div>
+        <div class="w-10 h-10 rounded-full bg-brand-700 text-gold-400 grid place-items-center shrink-0 font-bold text-sm">SP</div>
 
         <div class="min-w-0 flex-1">
           <p class="font-semibold text-sm">{{ t('install.title') }}</p>

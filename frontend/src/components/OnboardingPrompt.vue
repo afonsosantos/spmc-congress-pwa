@@ -37,7 +37,7 @@ function scanTicket() {
         </div>
         <h2 class="text-lg font-bold mb-2">{{ t('onboarding.title') }}</h2>
         <p class="text-sm text-slate-600 dark:text-slate-300 mb-6">{{ t('onboarding.body') }}</p>
-        <button type="button" class="w-full px-5 py-3 rounded-full bg-brand-700 text-white text-sm font-semibold" @click="scanTicket">
+        <button type="button" class="w-full px-5 py-3 rounded-full bg-gold-500 text-white text-sm font-semibold" @click="scanTicket">
           {{ t('onboarding.scanCta') }}
         </button>
         <button type="button" class="w-full px-5 py-3 mt-2 rounded-full text-sm font-semibold text-slate-500" @click="dismiss">

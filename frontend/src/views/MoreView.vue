@@ -90,7 +90,7 @@ async function deleteAccount() {
         <Icon name="ticket" class="w-4 h-4" /> {{ t('more.viewTicket') }}
       </RouterLink>
     </section>
-    <RouterLink v-else to="/entrar" class="flex items-center justify-between rounded-2xl bg-brand-700 text-white px-5 py-4">
+    <RouterLink v-else to="/entrar" class="flex items-center justify-between rounded-2xl bg-gold-500 text-white px-5 py-4">
       <span class="font-semibold flex items-center gap-2"><Icon name="qr" class="w-5 h-5" /> {{ t('nav.loginWithTicket') }}</span>
       <Icon name="chevronRight" class="w-5 h-5" />
     </RouterLink>

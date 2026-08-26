@@ -62,7 +62,7 @@ function solidPng(size, [r, g, b], padding = 0) {
 }
 
 mkdirSync('public/icons', { recursive: true });
-const brand = [0x0f, 0x6e, 0x5c];
+const brand = [0x4a, 0x1e, 0x2c]; // --wine-1, matches congresso-spmc.com
 writeFileSync('public/icons/icon-192.png', solidPng(192, brand));
 writeFileSync('public/icons/icon-512.png', solidPng(512, brand));
 writeFileSync('public/icons/icon-512-maskable.png', solidPng(512, brand, 64));

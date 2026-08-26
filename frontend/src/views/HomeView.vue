@@ -63,7 +63,7 @@ const shortcuts = computed(() => [
     <RouterLink
       v-if="!auth.isAuthenticated"
       to="/entrar"
-      class="flex items-center justify-between gap-3 rounded-2xl bg-brand-700 text-white px-5 py-4 mb-6 active:scale-[0.99] transition-transform"
+      class="flex items-center justify-between gap-3 rounded-2xl bg-gold-500 text-white px-5 py-4 mb-6 active:scale-[0.99] transition-transform"
     >
       <span class="flex items-center gap-3">
         <Icon name="qr" class="w-6 h-6" />
