@@ -131,11 +131,16 @@ function clearFilters() {
             v-for="track in program.tracks"
             :key="track.id"
             type="button"
-            class="px-3 py-1.5 rounded-full text-xs font-medium border"
+            class="max-w-[10rem] flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border"
             :class="trackFilter === track.id ? 'bg-brand-700 text-white border-brand-700' : 'border-slate-200 dark:border-slate-700'"
             @click="trackFilter = trackFilter === track.id ? null : track.id"
           >
-            {{ track.name }}
+            <span
+              v-if="track.color"
+              class="w-2 h-2 rounded-full shrink-0"
+              :style="{ backgroundColor: trackFilter === track.id ? '#fff' : track.color }"
+            />
+            <span class="min-w-0 truncate">{{ track.name }}</span>
           </button>
         </div>
       </div>

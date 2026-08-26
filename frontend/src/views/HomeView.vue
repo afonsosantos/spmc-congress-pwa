@@ -46,7 +46,7 @@ const topAnnouncement = computed(
 
 const shortcuts = computed(() => [
   { to: '/bilhete', icon: 'ticket', label: t('home.shortcutTicket'), requiresAuth: true },
-  { to: '/meu-horario', icon: 'schedule', label: t('home.shortcutSchedule'), requiresAuth: false },
+  { to: '/meu-horario', icon: 'star', label: t('home.shortcutSchedule'), requiresAuth: false },
   { to: '/anuncios', icon: 'bell', label: t('home.shortcutAnnouncements'), requiresAuth: false },
   { to: '/info/venue', icon: 'location', label: t('home.shortcutInfo'), requiresAuth: false },
 ]);

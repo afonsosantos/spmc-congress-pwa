@@ -56,6 +56,22 @@ const contentSaving = ref(false);
 const contentSaved = ref(false);
 const contentError = ref<string | null>(null);
 
+const syncing = ref(false);
+const syncResult = ref<{ sessionCount: number; fetchedAt: number } | null>(null);
+const syncError = ref<string | null>(null);
+
+async function syncProgram() {
+  syncing.value = true;
+  syncError.value = null;
+  try {
+    syncResult.value = await adminFetch('/pretalx/sync', { method: 'POST' });
+  } catch (e) {
+    syncError.value = (e as Error).message;
+  } finally {
+    syncing.value = false;
+  }
+}
+
 function authHeader() {
   return { Authorization: 'Basic ' + btoa(`${credentials.username}:${credentials.password}`) };
 }
@@ -196,6 +212,28 @@ onMounted(() => {
     </form>
 
     <template v-else>
+      <section class="rounded-2xl border border-slate-200 dark:border-slate-800 p-4 mb-6 flex items-center justify-between gap-3">
+        <div>
+          <p class="font-semibold text-sm">Programa (Pretalx)</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Sincronizado automaticamente a cada 5 minutos.
+            <template v-if="syncResult">
+              Última sincronização manual: {{ syncResult.sessionCount }} sessões, {{ new Date(syncResult.fetchedAt).toLocaleTimeString('pt-PT') }}.
+            </template>
+          </p>
+          <p v-if="syncError" class="text-xs font-medium text-rose-600 mt-0.5">{{ syncError }}</p>
+        </div>
+        <button
+          type="button"
+          class="shrink-0 px-4 py-2.5 rounded-xl bg-brand-700 text-white text-sm font-semibold disabled:opacity-50 flex items-center gap-2"
+          :disabled="syncing"
+          @click="syncProgram"
+        >
+          <Spinner v-if="syncing" size="sm" />
+          Forçar sincronização
+        </button>
+      </section>
+
       <div class="flex gap-2 mb-6">
         <button
           type="button"

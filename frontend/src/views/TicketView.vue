@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
-import TicketModal from '@/components/TicketModal.vue';
+import TicketCard from '@/components/TicketCard.vue';
 import { useAuthStore } from '@/stores/auth';
 
+const { t } = useI18n();
 const auth = useAuthStore();
 const router = useRouter();
 
@@ -19,5 +21,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <TicketModal v-if="auth.user" @close="router.push('/')" />
+  <div class="max-w-md mx-auto px-4 pt-6 pb-10 md:px-8" v-if="auth.user">
+    <h1 class="text-xl font-bold mb-4">{{ t('ticket.title') }}</h1>
+    <TicketCard />
+  </div>
 </template>

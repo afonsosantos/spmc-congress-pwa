@@ -2,8 +2,8 @@
   "nav": {
     "home": "Home",
     "program": "Program",
-    "mySchedule": "My Schedule",
-    "myScheduleShort": "Schedule",
+    "mySchedule": "Favorites",
+    "myScheduleShort": "Favorites",
     "announcements": "Announcements",
     "more": "More",
     "myTicket": "My Ticket",
@@ -31,7 +31,7 @@
     "noCurrentSession": "No session in progress",
     "noUpcomingSessions": "No upcoming sessions",
     "shortcutTicket": "My Ticket",
-    "shortcutSchedule": "My Schedule",
+    "shortcutSchedule": "Favorites",
     "shortcutAnnouncements": "Announcements",
     "shortcutInfo": "Information"
   },
@@ -64,7 +64,7 @@
     "addFavouriteAria": "Add to favourites"
   },
   "schedule": {
-    "title": "My Schedule",
+    "title": "Favorites",
     "loginPrompt": "Log in with your ticket",
     "loginPromptHint": "You need to log in to save favourite sessions.",
     "loginCta": "Log in with ticket",

@@ -12,7 +12,7 @@ const { t } = useI18n();
 const items = computed(() => [
   { to: '/', name: 'home', label: t('nav.home'), icon: 'home' },
   { to: '/programa', name: 'program', label: t('nav.program'), icon: 'program' },
-  { to: '/meu-horario', name: 'my-schedule', label: t('nav.myScheduleShort'), icon: 'schedule' },
+  { to: '/meu-horario', name: 'my-schedule', label: t('nav.myScheduleShort'), icon: 'star' },
   { to: '/anuncios', name: 'announcements', label: t('nav.announcements'), icon: 'bell' },
   { to: '/mais', name: 'more', label: t('nav.more'), icon: 'more' },
 ]);

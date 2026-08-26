@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { pool } from '../db/pool.js';
 import { requireAdmin } from '../middleware/adminAuth.js';
 import { PushService } from '../services/pushService.js';
+import { PretalxService } from '../services/pretalxService.js';
 
 export const adminRouter = Router();
 adminRouter.use(requireAdmin);
@@ -146,4 +147,9 @@ adminRouter.put('/content/:slug', async (req, res) => {
 adminRouter.delete('/content/:slug', async (req, res) => {
   await pool.query('DELETE FROM content_pages WHERE slug = $1', [req.params.slug]);
   res.json({ ok: true });
+});
+
+adminRouter.post('/pretalx/sync', async (_req, res) => {
+  const result = await PretalxService.forceRefresh();
+  res.json({ ok: true, ...result });
 });

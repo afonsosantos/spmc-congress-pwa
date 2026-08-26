@@ -2,8 +2,8 @@
   "nav": {
     "home": "Início",
     "program": "Programa",
-    "mySchedule": "Meu Horário",
-    "myScheduleShort": "Horário",
+    "mySchedule": "Favoritos",
+    "myScheduleShort": "Favoritos",
     "announcements": "Avisos",
     "more": "Mais",
     "myTicket": "Meu Bilhete",
@@ -31,7 +31,7 @@
     "noCurrentSession": "Sem sessão a decorrer",
     "noUpcomingSessions": "Sem próximas sessões",
     "shortcutTicket": "Meu Bilhete",
-    "shortcutSchedule": "Meu Horário",
+    "shortcutSchedule": "Favoritos",
     "shortcutAnnouncements": "Avisos",
     "shortcutInfo": "Informação"
   },
@@ -64,7 +64,7 @@
     "addFavouriteAria": "Adicionar aos favoritos"
   },
   "schedule": {
-    "title": "Meu Horário",
+    "title": "Favoritos",
     "loginPrompt": "Entre com o seu bilhete",
     "loginPromptHint": "Para guardar sessões favoritas precisa de iniciar sessão.",
     "loginCta": "Entrar com bilhete",

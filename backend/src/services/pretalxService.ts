@@ -206,4 +206,9 @@ export const PretalxService = {
       getCache().catch(() => {});
     }, REFRESH_INTERVAL_MS).unref();
   },
+  /** Bypasses the TTL — used by the admin "force sync" action. */
+  async forceRefresh(): Promise<{ sessionCount: number; fetchedAt: number }> {
+    cache = await fetchAll();
+    return { sessionCount: cache.sessions.length, fetchedAt: cache.fetchedAt };
+  },
 };

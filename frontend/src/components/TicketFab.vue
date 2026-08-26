@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import Icon from '@/components/Icon.vue';
-import TicketModal from '@/components/TicketModal.vue';
+import TicketCard from '@/components/TicketCard.vue';
 import { useAuthStore } from '@/stores/auth';
 
 const { t } = useI18n();
@@ -42,6 +42,21 @@ watch(() => route.fullPath, close);
     enter-from-class="opacity-0"
     leave-to-class="opacity-0"
   >
-    <TicketModal v-if="open" @close="close" />
+    <div v-if="open" class="fixed inset-0 z-50 overflow-y-auto bg-white dark:bg-slate-950" role="dialog" :aria-label="t('nav.myTicket')">
+      <div class="max-w-sm mx-auto px-4 pt-6 pb-10">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-bold text-lg">{{ t('ticket.title') }}</h2>
+          <button
+            type="button"
+            class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 grid place-items-center"
+            :aria-label="t('common.close')"
+            @click="close"
+          >
+            <Icon name="close" class="w-4 h-4" />
+          </button>
+        </div>
+        <TicketCard />
+      </div>
+    </div>
   </Transition>
 </template>
