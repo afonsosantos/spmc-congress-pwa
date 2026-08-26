@@ -19,11 +19,13 @@ const fakePool = createFakePool();
 mock.module('../src/db/pool.js', { namedExports: { pool: fakePool } });
 
 let nextPosition: any = null;
+let nextCheckins: any[] | null = [];
 mock.module('../src/services/pretixService.js', {
   namedExports: {
     PretixService: {
       findValidPositionBySecret: async () => nextPosition,
       getItem: async () => ({ id: 10, name: { en: 'Congress Registration' } }),
+      getPositionCheckins: async () => nextCheckins,
     },
   },
 });
@@ -126,6 +128,28 @@ test('favouriting an unknown session id 404s', async () => {
   await agent.post('/api/auth/ticket').send({ secret: 'unknownsesssecret1' });
   const res = await agent.post('/api/me/schedule/does-not-exist');
   assert.equal(res.status, 404);
+});
+
+test('POST /api/me/refresh re-checks Pretix and persists check-in status', async () => {
+  nextPosition = validPosition({ id: 202, order: 'CHECKINFLOW' });
+  const agent = request.agent(app);
+  await agent.post('/api/auth/ticket').send({ secret: 'checkinflowsecret1' });
+
+  const before = await agent.get('/api/auth/me');
+  assert.equal(before.body.user.checkedIn, false);
+
+  nextCheckins = [{ datetime: '2027-04-18T09:00:00Z', type: 'entry' }];
+  const refreshed = await agent.post('/api/me/refresh');
+  assert.equal(refreshed.status, 200);
+  assert.equal(refreshed.body.user.checkedIn, true);
+
+  const after = await agent.get('/api/auth/me');
+  assert.equal(after.body.user.checkedIn, true);
+});
+
+test('POST /api/me/refresh requires authentication', async () => {
+  const res = await request(app).post('/api/me/refresh');
+  assert.equal(res.status, 401);
 });
 
 test('admin endpoints reject unauthenticated / non-admin requests', async () => {

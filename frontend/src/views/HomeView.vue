@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { RouterLink } from 'vue-router';
 import Icon from '@/components/Icon.vue';
 import PriorityBadge from '@/components/PriorityBadge.vue';
@@ -7,13 +7,24 @@ import EmptyState from '@/components/EmptyState.vue';
 import { useProgramStore } from '@/stores/program';
 import { useAnnouncementsStore } from '@/stores/announcements';
 import { useAuthStore } from '@/stores/auth';
+import { useScheduleStore } from '@/stores/schedule';
 import { useNow } from '@/composables/useNow';
 import { formatDate, formatTime } from '@/lib/format';
 
 const program = useProgramStore();
 const announcements = useAnnouncementsStore();
 const auth = useAuthStore();
+const schedule = useScheduleStore();
 const { now } = useNow();
+
+onMounted(() => {
+  program.fetchProgram();
+  announcements.fetchAnnouncements();
+  if (auth.isAuthenticated) {
+    auth.fetchMe();
+    schedule.fetchMySchedule();
+  }
+});
 
 const sortedSessions = computed(() =>
   [...program.sessions].sort((a, b) => (a.start ?? '').localeCompare(b.start ?? ''))

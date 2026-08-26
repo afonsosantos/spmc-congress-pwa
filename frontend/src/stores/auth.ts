@@ -47,6 +47,16 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    /** Live re-check of Pretix check-in status (rate-limited server-side). */
+    async refreshCheckIn() {
+      try {
+        const { user } = await api.post<{ user: Participant }>('/me/refresh');
+        this.user = user;
+      } catch {
+        // keep last known state on failure (e.g. rate-limited, offline)
+      }
+    },
+
     async logout() {
       await api.post('/auth/logout').catch(() => {});
       this.user = null;

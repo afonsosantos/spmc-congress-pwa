@@ -13,6 +13,14 @@ export default defineConfig(({ command }) => ({
     ...(command === 'serve' ? [basicSsl()] : []),
     VitePWA({
       registerType: 'autoUpdate',
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
+      injectManifest: {
+        // keep the precache manifest small — same public-data caching
+        // rules are implemented explicitly in src/sw.ts
+        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+      },
       includeAssets: ['favicon.svg'],
       manifest: {
         name: 'SPMC Congress 2027',
@@ -28,27 +36,6 @@ export default defineConfig(({ command }) => ({
           { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
           { src: '/icons/icon-512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
-        ],
-      },
-      workbox: {
-        navigateFallback: '/index.html',
-        // Never cache API auth/participant responses — only cache-able public data.
-        runtimeCaching: [
-          {
-            urlPattern: /\/api\/program(\/.*)?$/,
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'program-cache', expiration: { maxAgeSeconds: 60 * 60 * 24 } },
-          },
-          {
-            urlPattern: /\/api\/content\/.*/,
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'content-cache', expiration: { maxAgeSeconds: 60 * 60 * 24 } },
-          },
-          {
-            urlPattern: /\/api\/announcements$/,
-            handler: 'NetworkFirst',
-            options: { cacheName: 'announcements-cache', networkTimeoutSeconds: 3 },
-          },
         ],
       },
       devOptions: { enabled: false },

@@ -11,7 +11,7 @@ export interface ParticipantDTO {
   ticket: { product: string; variation: string | null };
   workshops: string[];
   answers: Record<string, string>;
-  /** As of the participant's last login — not live-polled from Pretix. */
+  /** Refreshed on login and whenever refreshCheckedIn() is called. */
   checkedIn: boolean;
 }
 
@@ -23,6 +23,10 @@ interface ParticipantRow {
   ticket_variation: string;
   answers: Record<string, string>;
   checked_in: boolean;
+}
+
+function hasCheckedIn(checkins: { type: string }[] | undefined): boolean {
+  return (checkins ?? []).some((c) => c.type === 'entry');
 }
 
 function toDTO(row: ParticipantRow): ParticipantDTO {
@@ -71,7 +75,7 @@ export const ParticipantService = {
     // Not every event asks for a per-attendee email — fall back to the
     // order's email when the ticket itself doesn't have one.
     const email = position.attendee_email ?? position.orderEmail ?? '';
-    const checkedIn = (position.checkins ?? []).some((c) => c.type === 'entry');
+    const checkedIn = hasCheckedIn(position.checkins);
 
     const { rows } = await pool.query<{ id: string }>(
       `INSERT INTO participants (pretix_position_id, pretix_order_code, name, email, ticket_product, ticket_variation, answers, checked_in, last_login_at, updated_at)
@@ -90,6 +94,29 @@ export const ParticipantService = {
       [position.id, position.order, name, email, productName, variationName, JSON.stringify(answers), checkedIn]
     );
     return rows[0].id;
+  },
+
+  /**
+   * Re-queries Pretix (by position id — the ticket secret is never
+   * stored, so this cannot use the secret-based lookup) for current
+   * check-in status and persists it. Read-only on the Pretix side.
+   */
+  async refreshCheckedIn(id: string): Promise<ParticipantDTO | null> {
+    const { rows } = await pool.query<{ pretix_position_id: number }>(
+      'SELECT pretix_position_id FROM participants WHERE id = $1',
+      [id]
+    );
+    const positionId = rows[0]?.pretix_position_id;
+    if (!positionId) return null;
+
+    const checkins = await PretixService.getPositionCheckins(positionId);
+    if (checkins === null) return this.findById(id); // Pretix unreachable — serve last known state
+
+    await pool.query('UPDATE participants SET checked_in = $2, updated_at = now() WHERE id = $1', [
+      id,
+      hasCheckedIn(checkins),
+    ]);
+    return this.findById(id);
   },
 
   /** GDPR: deletes all local data for a participant (favourites cascade). */

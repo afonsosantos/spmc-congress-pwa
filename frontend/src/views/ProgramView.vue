@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import Icon from '@/components/Icon.vue';
 import SessionCard from '@/components/SessionCard.vue';
 import SkeletonList from '@/components/SkeletonList.vue';
@@ -8,6 +8,10 @@ import { useProgramStore } from '@/stores/program';
 import { formatDate, dayKey } from '@/lib/format';
 
 const program = useProgramStore();
+
+onMounted(() => {
+  program.fetchProgram();
+});
 
 const query = ref('');
 const roomFilter = ref<number | null>(null);

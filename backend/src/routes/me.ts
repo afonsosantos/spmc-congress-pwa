@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import { pool } from '../db/pool.js';
 import { requireAuth } from '../middleware/auth.js';
 import { ParticipantService } from '../services/participantService.js';
@@ -9,6 +10,24 @@ meRouter.use(requireAuth);
 
 meRouter.get('/', async (req, res) => {
   const dto = await ParticipantService.findById(req.participantId!);
+  res.json({ user: dto });
+});
+
+const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Re-checks check-in status against Pretix (read-only). Rate-limited since
+// each call is a live upstream request, not just a local DB read.
+meRouter.post('/refresh', refreshLimiter, async (req, res) => {
+  const dto = await ParticipantService.refreshCheckedIn(req.participantId!);
+  if (!dto) {
+    res.status(404).json({ error: 'Participante não encontrado.' });
+    return;
+  }
   res.json({ user: dto });
 });
 

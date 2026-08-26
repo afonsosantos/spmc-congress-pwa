@@ -7,8 +7,14 @@ import { useAuthStore } from '@/stores/auth';
 const auth = useAuthStore();
 const router = useRouter();
 
-onMounted(() => {
-  if (auth.status === 'ready' && !auth.isAuthenticated) router.replace('/entrar');
+onMounted(async () => {
+  if (auth.status === 'ready' && !auth.isAuthenticated) {
+    router.replace('/entrar');
+    return;
+  }
+  // Refresh from Pretix so check-in status reflects reality, not just
+  // what was true when the participant last logged in.
+  if (auth.isAuthenticated) await auth.refreshCheckIn();
 });
 </script>
 
@@ -51,7 +57,7 @@ onMounted(() => {
       <div class="px-5 pb-5">
         <div class="rounded-xl bg-slate-50 dark:bg-slate-800 p-3 flex items-start gap-2 text-xs text-slate-500 dark:text-slate-400">
           <Icon name="info" class="w-4 h-4 shrink-0 mt-0.5" />
-          Este ecrã identifica-o como participante na aplicação. Para o check-in físico no congresso, utilize o bilhete original (PDF/email) enviado pelo Pretix. O estado do check-in é atualizado sempre que iniciar sessão.
+          Este ecrã identifica-o como participante na aplicação. Para o check-in físico no congresso, utilize o bilhete original (PDF/email) enviado pelo Pretix. O estado do check-in é atualizado sempre que abrir este ecrã.
         </div>
       </div>
     </div>

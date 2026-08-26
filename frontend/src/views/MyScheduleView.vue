@@ -14,6 +14,7 @@ const schedule = useScheduleStore();
 const auth = useAuthStore();
 
 onMounted(() => {
+  program.fetchProgram();
   if (auth.isAuthenticated) schedule.fetchMySchedule();
 });
 

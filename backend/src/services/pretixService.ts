@@ -110,6 +110,24 @@ export const PretixService = {
     }
   },
 
+  /**
+   * Read-only lookup by position id (not secret) — used to refresh
+   * check-in status for an already-authenticated participant without
+   * ever storing or re-deriving their ticket secret.
+   */
+  async getPositionCheckins(positionId: number): Promise<PretixCheckin[] | null> {
+    const path = `/api/v1/organizers/${encodeURIComponent(env.PRETIX_ORGANIZER)}/events/${encodeURIComponent(
+      env.PRETIX_EVENT
+    )}/orderpositions/${positionId}/`;
+    try {
+      const position = await pretixFetch<PretixOrderPosition>(path);
+      return position.checkins ?? [];
+    } catch (err) {
+      logger.error('pretix check-in refresh failed', { error: (err as Error).message });
+      return null;
+    }
+  },
+
   async getItem(itemId: number): Promise<{ id: number; name: Record<string, string> } | null> {
     const path = `/api/v1/organizers/${encodeURIComponent(env.PRETIX_ORGANIZER)}/events/${encodeURIComponent(
       env.PRETIX_EVENT

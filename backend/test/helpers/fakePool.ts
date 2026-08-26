@@ -46,6 +46,17 @@ export function createFakePool() {
       return { rows: (row ? [row] : []) as T[], rowCount: row ? 1 : 0 };
     }
 
+    if (sql.startsWith('SELECT pretix_position_id FROM participants')) {
+      const row = participants.find((p) => p.id === params[0]);
+      return { rows: (row ? [{ pretix_position_id: row.pretix_position_id }] : []) as T[], rowCount: row ? 1 : 0 };
+    }
+
+    if (sql.startsWith('UPDATE participants SET checked_in')) {
+      const row = participants.find((p) => p.id === params[0]);
+      if (row) row.checked_in = params[1];
+      return { rows: [] as T[], rowCount: row ? 1 : 0 };
+    }
+
     if (sql.startsWith('DELETE FROM participants')) {
       const idx = participants.findIndex((p) => p.id === params[0]);
       if (idx !== -1) participants.splice(idx, 1);

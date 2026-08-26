@@ -8,7 +8,8 @@ import { formatDate, formatTime } from '@/lib/format';
 
 const announcements = useAnnouncementsStore();
 
-onMounted(() => {
+onMounted(async () => {
+  await announcements.fetchAnnouncements();
   for (const a of announcements.announcements) {
     if (!a.read) announcements.markRead(a.id);
   }
