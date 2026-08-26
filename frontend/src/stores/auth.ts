@@ -8,6 +8,7 @@ export interface Participant {
   ticket: { product: string; variation: string | null };
   workshops: string[];
   answers: Record<string, string>;
+  checkedIn: boolean;
 }
 
 interface State {

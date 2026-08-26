@@ -20,10 +20,10 @@ export function createFakePool() {
     const sql = text.replace(/\s+/g, ' ').trim();
 
     if (sql.startsWith('INSERT INTO participants')) {
-      const [pretix_position_id, pretix_order_code, name, email, ticket_product, ticket_variation, answers] = params;
+      const [pretix_position_id, pretix_order_code, name, email, ticket_product, ticket_variation, answers, checked_in] = params;
       let row = participants.find((p) => p.pretix_position_id === pretix_position_id);
       if (row) {
-        Object.assign(row, { pretix_order_code, name, email, ticket_product, ticket_variation, answers: JSON.parse(answers as string) });
+        Object.assign(row, { pretix_order_code, name, email, ticket_product, ticket_variation, answers: JSON.parse(answers as string), checked_in });
       } else {
         row = {
           id: crypto.randomUUID(),
@@ -34,13 +34,14 @@ export function createFakePool() {
           ticket_product,
           ticket_variation,
           answers: JSON.parse(answers as string),
+          checked_in,
         };
         participants.push(row);
       }
       return { rows: [{ id: row.id }] as T[], rowCount: 1 };
     }
 
-    if (sql.startsWith('SELECT id, name, email, ticket_product, ticket_variation, answers FROM participants')) {
+    if (sql.startsWith('SELECT id, name, email, ticket_product, ticket_variation, answers, checked_in FROM participants')) {
       const row = participants.find((p) => p.id === params[0]);
       return { rows: (row ? [row] : []) as T[], rowCount: row ? 1 : 0 };
     }

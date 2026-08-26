@@ -13,6 +13,12 @@ import { logger } from '../logger.js';
 interface PretixOrder {
   code: string;
   status: 'n' | 'p' | 'e' | 'c'; // pending, paid, expired, cancelled
+  email: string | null;
+}
+
+interface PretixCheckin {
+  datetime: string;
+  type: 'entry' | 'exit';
 }
 
 interface PretixQuestionAnswer {
@@ -35,10 +41,13 @@ export interface PretixOrderPosition {
   valid_until: string | null;
   blocked: string[] | null;
   answers: PretixQuestionAnswer[];
+  checkins: PretixCheckin[];
 }
 
 interface PretixOrderPositionExpanded extends PretixOrderPosition {
   order: string;
+  /** Order-level email, used when the ticket has no per-attendee email set. */
+  orderEmail: string | null;
 }
 
 class PretixApiError extends Error {}
@@ -67,7 +76,7 @@ export const PretixService = {
       env.PRETIX_EVENT
     )}/orderpositions/?secret=${encodeURIComponent(secret)}`;
 
-    let data: { results: PretixOrderPositionExpanded[] };
+    let data: { results: PretixOrderPosition[] };
     try {
       data = await pretixFetch(path);
     } catch (err) {
@@ -87,7 +96,7 @@ export const PretixService = {
     const order = await this.getOrder(position.order);
     if (!order || order.status !== 'p') return null;
 
-    return position;
+    return { ...position, orderEmail: order.email };
   },
 
   async getOrder(code: string): Promise<PretixOrder | null> {

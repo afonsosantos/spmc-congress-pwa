@@ -11,6 +11,8 @@ export interface ParticipantDTO {
   ticket: { product: string; variation: string | null };
   workshops: string[];
   answers: Record<string, string>;
+  /** As of the participant's last login — not live-polled from Pretix. */
+  checkedIn: boolean;
 }
 
 interface ParticipantRow {
@@ -20,6 +22,7 @@ interface ParticipantRow {
   ticket_product: string;
   ticket_variation: string;
   answers: Record<string, string>;
+  checked_in: boolean;
 }
 
 function toDTO(row: ParticipantRow): ParticipantDTO {
@@ -30,6 +33,7 @@ function toDTO(row: ParticipantRow): ParticipantDTO {
     ticket: { product: row.ticket_product, variation: row.ticket_variation || null },
     workshops: row.answers.workshop ? [row.answers.workshop] : [],
     answers: row.answers,
+    checkedIn: row.checked_in,
   };
 }
 
@@ -38,7 +42,7 @@ export const ParticipantService = {
 
   async findById(id: string): Promise<ParticipantDTO | null> {
     const { rows } = await pool.query<ParticipantRow>(
-      'SELECT id, name, email, ticket_product, ticket_variation, answers FROM participants WHERE id = $1',
+      'SELECT id, name, email, ticket_product, ticket_variation, answers, checked_in FROM participants WHERE id = $1',
       [id]
     );
     return rows[0] ? toDTO(rows[0]) : null;
@@ -64,11 +68,14 @@ export const ParticipantService = {
     }
 
     const name = position.attendee_name ?? '';
-    const email = position.attendee_email ?? '';
+    // Not every event asks for a per-attendee email — fall back to the
+    // order's email when the ticket itself doesn't have one.
+    const email = position.attendee_email ?? position.orderEmail ?? '';
+    const checkedIn = (position.checkins ?? []).some((c) => c.type === 'entry');
 
     const { rows } = await pool.query<{ id: string }>(
-      `INSERT INTO participants (pretix_position_id, pretix_order_code, name, email, ticket_product, ticket_variation, answers, last_login_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, now(), now())
+      `INSERT INTO participants (pretix_position_id, pretix_order_code, name, email, ticket_product, ticket_variation, answers, checked_in, last_login_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now(), now())
        ON CONFLICT (pretix_position_id) DO UPDATE SET
          pretix_order_code = EXCLUDED.pretix_order_code,
          name = EXCLUDED.name,
@@ -76,10 +83,11 @@ export const ParticipantService = {
          ticket_product = EXCLUDED.ticket_product,
          ticket_variation = EXCLUDED.ticket_variation,
          answers = EXCLUDED.answers,
+         checked_in = EXCLUDED.checked_in,
          last_login_at = now(),
          updated_at = now()
        RETURNING id`,
-      [position.id, position.order, name, email, productName, variationName, JSON.stringify(answers)]
+      [position.id, position.order, name, email, productName, variationName, JSON.stringify(answers), checkedIn]
     );
     return rows[0].id;
   },

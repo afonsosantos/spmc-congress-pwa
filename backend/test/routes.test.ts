@@ -59,6 +59,8 @@ function validPosition(overrides: Partial<Record<string, unknown>> = {}) {
     valid_until: null,
     blocked: null,
     answers: [],
+    checkins: [],
+    orderEmail: 'maria@example.com',
     ...overrides,
   };
 }

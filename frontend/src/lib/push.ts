@@ -7,7 +7,23 @@ function urlBase64ToUint8Array(base64: string): Uint8Array {
   return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
 }
 
-export async function subscribeToPush(): Promise<'subscribed' | 'unsupported' | 'disabled' | 'denied'> {
+function isStandalone(): boolean {
+  return (
+    window.matchMedia('(display-mode: standalone)').matches ||
+    (navigator as unknown as { standalone?: boolean }).standalone === true
+  );
+}
+
+export async function subscribeToPush(): Promise<
+  'subscribed' | 'unsupported' | 'disabled' | 'denied' | 'ios-not-installed'
+> {
+  // iOS Safari only exposes PushManager to a PWA that's been added to the
+  // Home Screen and opened from there (iOS 16.4+) — never from a regular
+  // Safari tab, even over HTTPS. Detect that case specifically so the UI
+  // can say "install the app first" instead of a generic "unsupported".
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (isIos && !isStandalone()) return 'ios-not-installed';
+
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) return 'unsupported';
 
   const { publicKey, enabled } = await api.get<{ publicKey: string | null; enabled: boolean }>('/push/public-key');

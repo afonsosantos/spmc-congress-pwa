@@ -45,9 +45,11 @@ async function enablePush() {
       ? 'Notificações ativadas.'
       : result === 'denied'
         ? 'Permissão de notificações negada.'
-        : result === 'unsupported'
-          ? 'O seu navegador não suporta notificações.'
-          : 'Notificações push não estão configuradas neste evento.';
+        : result === 'ios-not-installed'
+          ? 'No iPhone, as notificações só funcionam depois de instalar a aplicação no ecrã principal (Partilhar → Adicionar ao Ecrã Principal) e abri-la a partir daí. Requer iOS 16.4 ou superior.'
+          : result === 'unsupported'
+            ? 'O seu navegador não suporta notificações.'
+            : 'Notificações push não estão configuradas neste evento.';
 }
 
 async function deleteAccount() {
