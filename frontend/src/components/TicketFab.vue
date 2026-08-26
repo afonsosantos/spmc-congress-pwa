@@ -29,7 +29,7 @@ watch(() => route.fullPath, close);
   <button
     v-if="auth.isAuthenticated && route.name !== 'ticket'"
     type="button"
-    class="fixed z-30 bottom-20 md:bottom-6 right-4 w-14 h-14 rounded-full bg-brand-700 text-white shadow-lg grid place-items-center active:scale-95 transition-transform safe-bottom"
+    class="fixed z-30 bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-6 right-4 w-14 h-14 rounded-full bg-brand-700 text-white shadow-lg grid place-items-center active:scale-95 transition-transform"
     :aria-label="t('nav.myTicket')"
     @click="show"
   >

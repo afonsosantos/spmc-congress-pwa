@@ -24,6 +24,7 @@ mock.module('../src/services/pretixService.js', () => ({
     findValidPositionBySecret: async () => nextPosition,
     getItem: async () => ({ id: 10, name: { en: 'Congress Registration' } }),
     getPositionCheckins: async () => nextCheckins,
+    getPositionAddons: async () => [],
   },
 }));
 mock.module('../src/services/pretalxService.js', () => ({

@@ -125,6 +125,7 @@
     "category": "Categoria",
     "variation": "Variante",
     "workshop": "Workshop",
+    "addons": "Extras",
     "email": "Email",
     "notice": "Este ecrã identifica-o como participante na aplicação. Para o check-in físico no congresso, utilize o bilhete original (PDF/email) enviado pelo Pretix. O estado do check-in é atualizado sempre que abrir este ecrã."
   },

@@ -13,9 +13,13 @@ process.env.PRETALX_EVENT = 'congresso2027';
 
 const fakePool = createFakePool();
 mock.module('../src/db/pool.js', () => ({ pool: fakePool }));
+
+let nextAddons: { item: number; canceled: boolean }[] = [];
+const itemNames: Record<number, string> = { 10: 'Congress Registration', 20: 'Almoço', 21: 'Workshop de Acupuntura' };
 mock.module('../src/services/pretixService.js', () => ({
   PretixService: {
-    getItem: async () => ({ id: 10, name: { en: 'Congress Registration' } }),
+    getItem: async (id: number) => (itemNames[id] ? { id, name: { en: itemNames[id] } } : null),
+    getPositionAddons: async () => nextAddons,
   },
 }));
 
@@ -81,4 +85,35 @@ test('falls back to the order-level email when the ticket has no attendee email,
 
   expect(dto?.email).toBe('joao@example.com');
   expect(dto?.checkedIn).toBe(true);
+});
+
+test('purchased add-ons (lunch, workshops) are resolved to product names, cancelled ones excluded', async () => {
+  nextAddons = [
+    { item: 20, canceled: false }, // Almoço
+    { item: 21, canceled: false }, // Workshop
+    { item: 20, canceled: false }, // duplicate — should not appear twice
+    { item: 99, canceled: true }, // cancelled — excluded regardless of item
+  ];
+  const position = {
+    id: 44,
+    order: 'ADDONS1',
+    positionid: 1,
+    item: 10,
+    variation: null,
+    attendee_name: 'Ana Costa',
+    attendee_email: 'ana@example.com',
+    secret: 'addons-secret',
+    canceled: false,
+    valid_from: null,
+    valid_until: null,
+    blocked: null,
+    orderEmail: null,
+    checkins: [],
+    answers: [],
+  } as const;
+
+  const id = await ParticipantService.upsertFromPretix(position as any);
+  const dto = await ParticipantService.findById(id);
+
+  expect(dto?.addons.sort()).toEqual(['Almoço', 'Workshop de Acupuntura'].sort());
 });

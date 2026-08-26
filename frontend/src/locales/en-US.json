@@ -125,6 +125,7 @@
     "category": "Category",
     "variation": "Variation",
     "workshop": "Workshop",
+    "addons": "Extras",
     "email": "Email",
     "notice": "This screen identifies you as a participant in the app. For physical check-in at the congress, use the original ticket (PDF/email) sent by Pretix. Check-in status updates every time you open this screen."
   },

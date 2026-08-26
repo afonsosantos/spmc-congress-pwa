@@ -9,6 +9,7 @@ export interface Participant {
   ticket: { product: string; variation: string | null };
   workshops: string[];
   answers: Record<string, string>;
+  addons: string[];
   checkedIn: boolean;
 }
 

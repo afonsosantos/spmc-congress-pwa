@@ -128,6 +128,24 @@ export const PretixService = {
     }
   },
 
+  /**
+   * Read-only — other order positions purchased alongside this one (e.g.
+   * lunch, a workshop) via the documented `addon_to` filter. Does not
+   * touch check-in/redemption state.
+   */
+  async getPositionAddons(positionId: number): Promise<Pick<PretixOrderPosition, 'item' | 'canceled'>[]> {
+    const path = `/api/v1/organizers/${encodeURIComponent(env.PRETIX_ORGANIZER)}/events/${encodeURIComponent(
+      env.PRETIX_EVENT
+    )}/orderpositions/?addon_to=${positionId}`;
+    try {
+      const data = await pretixFetch<{ results: Pick<PretixOrderPosition, 'item' | 'canceled'>[] }>(path);
+      return data.results ?? [];
+    } catch (err) {
+      logger.error('pretix addon lookup failed', { error: (err as Error).message });
+      return [];
+    }
+  },
+
   async getItem(itemId: number): Promise<{ id: number; name: Record<string, string> } | null> {
     const path = `/api/v1/organizers/${encodeURIComponent(env.PRETIX_ORGANIZER)}/events/${encodeURIComponent(
       env.PRETIX_EVENT
