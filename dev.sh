@@ -3,8 +3,8 @@
 set -e
 trap 'kill 0' EXIT
 
-if [ -f backend/.env.local ]; then
-  (cd backend && bun --env-file=.env.local --watch src/index.ts) &
+if [ -f .env.local ]; then
+  (cd backend && bun --env-file=../.env.local --watch src/index.ts) &
 else
   (cd backend && bun run dev) &
 fi

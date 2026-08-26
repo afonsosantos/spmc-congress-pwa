@@ -11,7 +11,7 @@ A mobile-first PWA for the SPMC Congress 2027, replacing the attendee-facing par
 
 ## Commands
 
-Run from `backend/` or `frontend/` respectively (no root-level script runner).
+Run from `backend/` or `frontend/` respectively for individual commands. `./dev.sh` at the repo root runs both dev servers together (Ctrl-C stops both); it picks up a repo-root `.env.local` for the backend via `bun --env-file` if one exists, otherwise falls back to plain `bun run dev` (which will fail fast on missing required env vars — see Environment loading below).
 
 ```bash
 # backend — Bun runs the TypeScript directly, no compile step
@@ -54,7 +54,13 @@ Ticket secrets and session tokens must never appear in logs — `backend/src/log
 
 `PretalxService` (`backend/src/services/pretalxService.ts`) polls `GET /submissions/?state=confirmed&expand=slots,...` on an in-memory cache (5 min TTL + background refresh), serving stale data on upstream failure rather than erroring. **The Pretalx API field is `slots` (an array — a submission can have more than one scheduled occurrence, e.g. a repeated workshop), not `slot`.** Each slot becomes one `Session`; when a submission has multiple slots, the session id is `${code}-${slot.id}` to keep favourites unique, otherwise it's just the submission `code`. Rooms/speakers/tracks are separate cached collections, joined onto sessions at read time in `mapSession`.
 
-No Pretalx credentials exist anywhere in this app — the public API returns confirmed/scheduled submissions to unauthenticated requests by design.
+No Pretalx credentials exist anywhere in this app — the public API returns confirmed/scheduled submissions to unauthenticated requests by design. `POST /api/admin/pretalx/sync` bypasses the TTL for an on-demand refresh (used by the "force sync" button in the admin panel); the 5-minute background refresh runs regardless.
+
+### Admin panel
+
+The admin API (`backend/src/routes/admin.ts`, mounted behind `requireAdmin` in `backend/src/middleware/adminAuth.ts`) is a **second, separate auth system** from the participant ticket-QR flow above — plain HTTP Basic auth checked against `ADMIN_USERNAME`/`ADMIN_PASSWORD` env vars (timing-safe compare, no session/cookie involved). If those env vars are unset, the whole admin API 503s rather than silently accepting any credentials. `frontend/src/views/AdminView.vue` sends the Basic header on every request itself (`adminFetch`); credentials are never persisted, so admins re-enter them each visit. Announcements, content pages, and push subscriptions are plain Postgres tables managed entirely through this one route file — no separate CMS.
+
+Web push (`backend/src/services/pushService.ts`) is optional and self-disables via `pushConfigured` (`env.ts`) when `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`/`VAPID_SUBJECT` aren't all set — don't assume push is always available.
 
 ### Backend shape
 
@@ -70,7 +76,11 @@ Sessions/favourites/announcements/push-subscriptions/content-pages live in Postg
 
 Pinia stores (`frontend/src/stores/*.ts`) own all server state; views/components read from stores rather than calling `api` directly where a store exists. `frontend/src/lib/api.ts` is the only fetch wrapper — same-origin `/api` only, `credentials: 'include'`, never carries Pretix/Pretalx credentials (there are none client-side). The service worker (`frontend/src/sw.ts`, injected via vite-plugin-pwa's `injectManifest` strategy — not the zero-config `generateSW` mode) handles `push`/`notificationclick` explicitly and caches the public program/content/announcements via Workbox, plus a `localStorage` fallback in `program.ts` for offline viewing — auth/participant data is deliberately excluded from that caching. If you need to change runtime caching rules, edit `sw.ts` directly; `vite.config.ts`'s `VitePWA()` call only carries the manifest and build wiring now.
 
+PWA updates are **manual, not silent**: `registerType: 'prompt'` + `injectRegister: false` in `vite.config.ts` disable the plugin's auto-injected registration script, and `frontend/src/components/UpdatePrompt.vue` registers the SW itself via `virtual:pwa-register/vue`, showing a reload banner instead of auto-reloading. Correspondingly, `sw.ts` does *not* call `self.skipWaiting()` unconditionally — it only skips waiting on a `SKIP_WAITING` message, sent by the prompt's `updateServiceWorker()` call when the user taps reload. Don't reintroduce an unconditional `skipWaiting()`; that silently reactivates the old auto-update behavior.
+
 `useTheme.ts` and other cross-cutting composables must be invoked eagerly in `main.ts`, not left to whichever lazy-loaded route happens to import them first — a composable that applies a side effect (like the dark-mode class) only runs when its module is first imported, so gating it behind a specific view causes it to activate inconsistently depending on navigation.
+
+**The mobile bottom nav (`BottomNav.vue`) vs. desktop top nav (`TopNav.vue`) swap happens at the `lg` breakpoint (1024px), not `md`.** Tablet portrait/landscape widths (768–1023px) keep the bottom nav — there isn't enough room at those widths for the logo + full nav + ticket button. Anything else that positions itself relative to "is the bottom nav visible" (`TicketFab.vue`, `UpdatePrompt.vue`, `InstallPrompt.vue`, `App.vue`'s `<main>` padding) keys off the same `lg` breakpoint — keep them in sync if the swap point ever changes again.
 
 ### Testing approach
 
@@ -81,3 +91,5 @@ No test database — `backend/test/helpers/fakePool.ts` is a hand-written in-mem
 ## Deployment
 
 Single multi-stage `Dockerfile`, `oven/bun:1-alpine` base throughout (no Node anywhere in the image). The frontend stage `bun install`s and `vite build`s; the runtime stage `bun install --production`s the backend's dependencies and copies `backend/src` in as-is — Bun executes it directly, so there's nothing to compile or copy out of a `dist/`. The frontend's `dist/` lands in the runtime image as `public/`, served by the one Express process alongside the API. `.github/workflows/docker-publish.yml` builds and pushes to `ghcr.io/afonsosantos/spmc-congress-pwa` on push to `main`; `docker-compose.prod.yml` pulls that image instead of building (for hosts like a Proxmox LXC that shouldn't build locally). GHCR packages default to private even on a public repo — check package visibility before expecting an unauthenticated `pull` to work.
+
+CI passes the commit SHA into the frontend build stage as the `GIT_SHA` build arg (`ENV VITE_GIT_SHA=$GIT_SHA`), which Vite exposes to the app at build time; `MoreView.vue` shows the short SHA at the bottom of Mais/More so a running deployment can be matched back to the commit that produced it. A `dev`/local build with no `GIT_SHA` arg falls back to showing "dev".
