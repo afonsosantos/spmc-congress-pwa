@@ -102,20 +102,7 @@
     "logout": "Terminar sessão",
     "deleteAccount": "Apagar os meus dados desta aplicação",
     "deleteAccountConfirm": "Isto apaga permanentemente os seus dados desta aplicação (o registo no Pretix não é afetado). Continuar?",
-    "viewTicket": "Ver bilhete",
-    "links": {
-      "about": "Sobre o Congresso",
-      "venue": "Local",
-      "directions": "Como Chegar",
-      "parking": "Estacionamento",
-      "accommodation": "Alojamento",
-      "food": "Alimentação",
-      "sponsors": "Patrocinadores",
-      "committee": "Comissão Organizadora",
-      "contacts": "Contactos",
-      "privacy": "Política de Privacidade",
-      "terms": "Termos e Condições"
-    }
+    "viewTicket": "Ver bilhete"
   },
   "login": {
     "title": "Entrar com bilhete",

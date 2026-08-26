@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/Icon.vue';
+import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/auth';
 import { useScheduleStore } from '@/stores/schedule';
 import { useTheme } from '@/composables/useTheme';
@@ -22,22 +23,25 @@ const deleting = ref(false);
 // translated into the currently active one.
 const localeLabels: Record<SupportedLocale, string> = { 'pt-PT': 'Português', 'en-US': 'English' };
 
-const infoLinks = computed(() => [
-  { slug: 'about', label: t('more.links.about'), icon: 'info' },
-  { slug: 'venue', label: t('more.links.venue'), icon: 'building' },
-  { slug: 'directions', label: t('more.links.directions'), icon: 'location' },
-  { slug: 'parking', label: t('more.links.parking'), icon: 'car' },
-  { slug: 'accommodation', label: t('more.links.accommodation'), icon: 'bed' },
-  { slug: 'food', label: t('more.links.food'), icon: 'food' },
-  { slug: 'sponsors', label: t('more.links.sponsors'), icon: 'heart' },
-  { slug: 'committee', label: t('more.links.committee'), icon: 'user' },
-  { slug: 'contacts', label: t('more.links.contacts'), icon: 'contact' },
-]);
+interface ContentPageSummary {
+  slug: string;
+  title: string;
+  icon: string;
+  section: 'info' | 'legal';
+}
 
-const legalLinks = computed(() => [
-  { slug: 'privacy', label: t('more.links.privacy'), icon: 'shield' },
-  { slug: 'terms', label: t('more.links.terms'), icon: 'doc' },
-]);
+const contentPages = ref<ContentPageSummary[]>([]);
+onMounted(async () => {
+  try {
+    const { pages } = await api.get<{ pages: ContentPageSummary[] }>('/content');
+    contentPages.value = pages;
+  } catch {
+    contentPages.value = [];
+  }
+});
+
+const infoLinks = computed(() => contentPages.value.filter((p) => p.section === 'info'));
+const legalLinks = computed(() => contentPages.value.filter((p) => p.section === 'legal'));
 
 const themeOptions = computed(() => [
   { v: 'light', l: t('more.themeLight') },
@@ -95,11 +99,11 @@ async function deleteAccount() {
       <Icon name="chevronRight" class="w-5 h-5" />
     </RouterLink>
 
-    <section>
+    <section v-if="infoLinks.length">
       <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">{{ t('more.congressInfo') }}</h2>
       <div class="rounded-2xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 overflow-hidden">
         <RouterLink v-for="l in infoLinks" :key="l.slug" :to="`/info/${l.slug}`" class="flex items-center justify-between px-4 py-3">
-          <span class="flex items-center gap-3 text-sm font-medium"><Icon :name="l.icon" class="w-4 h-4 text-slate-400" />{{ l.label }}</span>
+          <span class="flex items-center gap-3 text-sm font-medium"><Icon :name="l.icon" class="w-4 h-4 text-slate-400" />{{ l.title }}</span>
           <Icon name="chevronRight" class="w-4 h-4 text-slate-300" />
         </RouterLink>
       </div>
@@ -147,11 +151,11 @@ async function deleteAccount() {
       </div>
     </section>
 
-    <section>
+    <section v-if="legalLinks.length">
       <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">{{ t('more.legal') }}</h2>
       <div class="rounded-2xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 overflow-hidden">
         <RouterLink v-for="l in legalLinks" :key="l.slug" :to="`/info/${l.slug}`" class="flex items-center justify-between px-4 py-3">
-          <span class="flex items-center gap-3 text-sm font-medium"><Icon :name="l.icon" class="w-4 h-4 text-slate-400" />{{ l.label }}</span>
+          <span class="flex items-center gap-3 text-sm font-medium"><Icon :name="l.icon" class="w-4 h-4 text-slate-400" />{{ l.title }}</span>
           <Icon name="chevronRight" class="w-4 h-4 text-slate-300" />
         </RouterLink>
       </div>

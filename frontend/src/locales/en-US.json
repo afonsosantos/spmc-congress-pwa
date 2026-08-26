@@ -102,20 +102,7 @@
     "logout": "Log out",
     "deleteAccount": "Delete my data from this app",
     "deleteAccountConfirm": "This permanently deletes your data from this app (your Pretix registration is not affected). Continue?",
-    "viewTicket": "View ticket",
-    "links": {
-      "about": "About the Congress",
-      "venue": "Venue",
-      "directions": "Getting There",
-      "parking": "Parking",
-      "accommodation": "Accommodation",
-      "food": "Food",
-      "sponsors": "Sponsors",
-      "committee": "Organizing Committee",
-      "contacts": "Contacts",
-      "privacy": "Privacy Policy",
-      "terms": "Terms and Conditions"
-    }
+    "viewTicket": "View ticket"
   },
   "login": {
     "title": "Log in with ticket",

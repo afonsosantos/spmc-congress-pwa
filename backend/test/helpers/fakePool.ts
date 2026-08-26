@@ -123,25 +123,52 @@ export function createFakePool() {
       return { rows: [] as T[], rowCount: 1 };
     }
 
-    if (sql.startsWith('SELECT slug, title, updated_at AS "updatedAt" FROM content_pages')) {
-      return { rows: contentPages as T[], rowCount: contentPages.length };
+    if (sql.startsWith('SELECT slug, title, icon, section, position FROM content_pages')) {
+      const rows = contentPages.filter((p) => p.visible !== false);
+      return { rows: rows as T[], rowCount: rows.length };
     }
 
-    if (sql.startsWith('SELECT slug, title, body, updated_at AS "updatedAt" FROM content_pages')) {
-      const row = contentPages.find((p) => p.slug === params[0]);
+    if (sql.startsWith('SELECT slug, title, body, icon, section, updated_at AS "updatedAt" FROM content_pages')) {
+      const row = contentPages.find((p) => p.slug === params[0] && p.visible !== false);
       return { rows: (row ? [row] : []) as T[], rowCount: row ? 1 : 0 };
     }
 
+    if (sql.startsWith('SELECT slug, title, body, icon, section, position, visible, updated_at AS "updatedAt" FROM content_pages')) {
+      return { rows: contentPages as T[], rowCount: contentPages.length };
+    }
+
     if (sql.startsWith('INSERT INTO content_pages')) {
-      const [slug, title, body] = params;
-      let row = contentPages.find((p) => p.slug === slug);
-      const updatedAt = new Date();
-      if (row) Object.assign(row, { title, body, updatedAt });
-      else {
-        row = { slug, title, body, updatedAt };
-        contentPages.push(row);
+      const [slug, title, body, icon, section, position, visible] = params;
+      if (contentPages.some((p) => p.slug === slug)) {
+        const err = new Error('duplicate key') as Error & { code: string };
+        err.code = '23505';
+        throw err;
       }
+      contentPages.push({ slug, title, body, icon, section, position, visible, updatedAt: new Date() });
       return { rows: [] as T[], rowCount: 1 };
+    }
+
+    if (sql.startsWith('UPDATE content_pages SET')) {
+      const [slug, title, body, icon, section, position, visible] = params;
+      const row = contentPages.find((p) => p.slug === slug);
+      if (row) {
+        Object.assign(row, {
+          title: title ?? row.title,
+          body: body ?? row.body,
+          icon: icon ?? row.icon,
+          section: section ?? row.section,
+          position: position ?? row.position,
+          visible: visible ?? row.visible,
+          updatedAt: new Date(),
+        });
+      }
+      return { rows: [] as T[], rowCount: row ? 1 : 0 };
+    }
+
+    if (sql.startsWith('DELETE FROM content_pages')) {
+      const idx = contentPages.findIndex((p) => p.slug === params[0]);
+      if (idx !== -1) contentPages.splice(idx, 1);
+      return { rows: [] as T[], rowCount: idx === -1 ? 0 : 1 };
     }
 
     if (sql.startsWith('SELECT 1')) {

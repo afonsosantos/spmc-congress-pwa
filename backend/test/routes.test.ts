@@ -182,3 +182,75 @@ test('admin content endpoints reject non-admin requests', async () => {
   const res = await request(app).put('/api/admin/content/venue').send({ title: 'x', body: 'y' });
   expect(res.status).toBe(401);
 });
+
+test('admin can create a new content page with a custom slug, icon, and section', async () => {
+  const create = await request(app)
+    .post('/api/admin/content')
+    .auth('admin', 'super-secret-password')
+    .send({ slug: 'covid-19', title: 'Medidas Sanitárias', body: 'Detalhes.', icon: 'shield', section: 'info' });
+  expect(create.status).toBe(201);
+  expect(create.body.slug).toBe('covid-19');
+
+  const publicList = await request(app).get('/api/content');
+  expect(publicList.status).toBe(200);
+  const found = publicList.body.pages.find((p: { slug: string }) => p.slug === 'covid-19');
+  expect(found).toBeTruthy();
+  expect(found.icon).toBe('shield');
+});
+
+test('creating a content page with a duplicate slug is rejected', async () => {
+  await request(app)
+    .post('/api/admin/content')
+    .auth('admin', 'super-secret-password')
+    .send({ slug: 'dup-page', title: 'A', body: 'B' });
+  const second = await request(app)
+    .post('/api/admin/content')
+    .auth('admin', 'super-secret-password')
+    .send({ slug: 'dup-page', title: 'C', body: 'D' });
+  expect(second.status).toBe(409);
+});
+
+test('creating a content page with an invalid slug is rejected', async () => {
+  const res = await request(app)
+    .post('/api/admin/content')
+    .auth('admin', 'super-secret-password')
+    .send({ slug: 'Not A Slug!', title: 'A', body: 'B' });
+  expect(res.status).toBe(400);
+});
+
+test('an inactive (visible=false) page 404s for participants but still shows for admin', async () => {
+  await request(app)
+    .post('/api/admin/content')
+    .auth('admin', 'super-secret-password')
+    .send({ slug: 'hidden-page', title: 'Hidden', body: 'Shh', visible: false });
+
+  const publicGet = await request(app).get('/api/content/hidden-page');
+  expect(publicGet.status).toBe(404);
+
+  const publicList = await request(app).get('/api/content');
+  expect(publicList.body.pages.some((p: { slug: string }) => p.slug === 'hidden-page')).toBe(false);
+
+  const adminList = await request(app).get('/api/admin/content').auth('admin', 'super-secret-password');
+  const hidden = adminList.body.pages.find((p: { slug: string }) => p.slug === 'hidden-page');
+  expect(hidden).toBeTruthy();
+  expect(hidden.visible).toBe(false);
+
+  const reactivate = await request(app)
+    .put('/api/admin/content/hidden-page')
+    .auth('admin', 'super-secret-password')
+    .send({ visible: true });
+  expect(reactivate.status).toBe(200);
+  const afterReactivate = await request(app).get('/api/content/hidden-page');
+  expect(afterReactivate.status).toBe(200);
+});
+
+test('admin can delete a content page', async () => {
+  await request(app)
+    .post('/api/admin/content')
+    .auth('admin', 'super-secret-password')
+    .send({ slug: 'to-delete', title: 'A', body: 'B' });
+  const del = await request(app).delete('/api/admin/content/to-delete').auth('admin', 'super-secret-password');
+  expect(del.status).toBe(200);
+  const after = await request(app).get('/api/content/to-delete');
+  expect(after.status).toBe(404);
+});
