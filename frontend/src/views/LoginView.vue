@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import jsQR from 'jsqr';
 import Icon from '@/components/Icon.vue';
+import Spinner from '@/components/Spinner.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useScheduleStore } from '@/stores/schedule';
 import { parsePretixTicketQr } from '@/lib/pretixQr';
@@ -133,7 +134,10 @@ onBeforeUnmount(stopCamera);
         </p>
       </div>
 
-      <div v-if="submitting" class="absolute inset-0 grid place-items-center bg-black/60 text-white text-sm">{{ t('login.validating') }}</div>
+      <div v-if="submitting" class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/60 text-white text-sm">
+        <Spinner />
+        {{ t('login.validating') }}
+      </div>
     </div>
 
     <p v-if="auth.loginError" class="text-sm text-rose-600 dark:text-rose-400 mb-4">{{ auth.loginError }}</p>

@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { routeLoading } from '@/lib/routeLoading';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -18,6 +19,18 @@ const router = createRouter({
     { path: '/admin', name: 'admin', component: () => import('@/views/AdminView.vue') },
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/NotFoundView.vue') },
   ],
+});
+
+// Route components are lazy-loaded, so navigation can have a visible gap
+// while the chunk downloads — surface it as a thin top progress bar.
+router.beforeEach(() => {
+  routeLoading.value = true;
+});
+router.afterEach(() => {
+  routeLoading.value = false;
+});
+router.onError(() => {
+  routeLoading.value = false;
 });
 
 export default router;

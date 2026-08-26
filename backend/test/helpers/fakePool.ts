@@ -39,7 +39,7 @@ export function createFakePool() {
         };
         participants.push(row);
       }
-      return { rows: [{ id: row.id }] as T[], rowCount: 1 };
+      return { rows: [{ id: row.id }] as unknown as T[], rowCount: 1 };
     }
 
     if (sql.startsWith('SELECT id, name, email, ticket_product, ticket_variation, answers, checked_in FROM participants')) {
@@ -49,7 +49,7 @@ export function createFakePool() {
 
     if (sql.startsWith('SELECT pretix_position_id FROM participants')) {
       const row = participants.find((p) => p.id === params[0]);
-      return { rows: (row ? [{ pretix_position_id: row.pretix_position_id }] : []) as T[], rowCount: row ? 1 : 0 };
+      return { rows: (row ? [{ pretix_position_id: row.pretix_position_id }] : []) as unknown as T[], rowCount: row ? 1 : 0 };
     }
 
     if (sql.startsWith('UPDATE participants SET checked_in')) {
@@ -72,7 +72,7 @@ export function createFakePool() {
 
     if (sql.startsWith('SELECT participant_id FROM app_sessions')) {
       const row = sessions.find((s) => s.token_hash === params[0] && (s.expires_at as Date) > new Date());
-      return { rows: (row ? [{ participant_id: row.participant_id }] : []) as T[], rowCount: row ? 1 : 0 };
+      return { rows: (row ? [{ participant_id: row.participant_id }] : []) as unknown as T[], rowCount: row ? 1 : 0 };
     }
 
     if (sql.startsWith('DELETE FROM app_sessions')) {
@@ -145,7 +145,7 @@ export function createFakePool() {
     }
 
     if (sql.startsWith('SELECT 1')) {
-      return { rows: [{ '?column?': 1 }] as T[], rowCount: 1 };
+      return { rows: [{ '?column?': 1 }] as unknown as T[], rowCount: 1 };
     }
 
     throw new Error(`fakePool: unhandled query: ${sql}`);

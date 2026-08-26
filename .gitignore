@@ -6,7 +6,6 @@ dist/
 .env.*
 !.env.example
 
-bun.lock
 npm-debug.log*
 
 .DS_Store

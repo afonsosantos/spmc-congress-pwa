@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
 import Icon from '@/components/Icon.vue';
+import Spinner from '@/components/Spinner.vue';
 import EmptyState from '@/components/EmptyState.vue';
 
 interface Announcement {
@@ -222,7 +223,8 @@ onMounted(() => {
             <input v-model="contentForm.title" placeholder="Título" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-medium" />
             <textarea v-model="contentForm.body" rows="10" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-mono"></textarea>
             <div class="flex items-center gap-3">
-              <button type="button" class="px-4 py-2.5 rounded-xl bg-brand-700 text-white text-sm font-semibold disabled:opacity-50" :disabled="contentSaving" @click="saveContentPage">
+              <button type="button" class="px-4 py-2.5 rounded-xl bg-brand-700 text-white text-sm font-semibold disabled:opacity-50 flex items-center gap-2" :disabled="contentSaving" @click="saveContentPage">
+                <Spinner v-if="contentSaving" size="sm" />
                 Guardar
               </button>
               <span v-if="contentSaved" class="text-xs font-medium text-emerald-600">Guardado.</span>

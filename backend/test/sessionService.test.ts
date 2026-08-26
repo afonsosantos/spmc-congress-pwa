@@ -1,5 +1,4 @@
-import { test, mock } from 'node:test';
-import assert from 'node:assert/strict';
+import { test, expect, mock } from 'bun:test';
 import { createFakePool } from './helpers/fakePool.js';
 
 process.env.NODE_ENV = 'test';
@@ -13,7 +12,7 @@ process.env.PRETALX_BASE_URL = 'https://pretalx.example.com';
 process.env.PRETALX_EVENT = 'congresso2027';
 
 const fakePool = createFakePool();
-mock.module('../src/db/pool.js', { namedExports: { pool: fakePool } });
+mock.module('../src/db/pool.js', () => ({ pool: fakePool }));
 
 const { SessionService } = await import('../src/services/sessionService.js');
 
@@ -21,20 +20,20 @@ test('create + resolve round-trips to the same participant', async () => {
   const participantId = crypto.randomUUID();
   const { token } = await SessionService.create(participantId);
   const resolved = await SessionService.resolve(token);
-  assert.equal(resolved?.participantId, participantId);
+  expect(resolved?.participantId).toBe(participantId);
 });
 
 test('resolve rejects unknown tokens', async () => {
   const resolved = await SessionService.resolve('not-a-real-token');
-  assert.equal(resolved, null);
+  expect(resolved).toBeNull();
 });
 
 test('the raw token is never stored server-side (only its hash)', async () => {
   const participantId = crypto.randomUUID();
   const { token } = await SessionService.create(participantId);
   const stored = fakePool._state.sessions.find((s) => s.participant_id === participantId);
-  assert.ok(stored);
-  assert.notEqual(stored?.token_hash, token);
+  expect(stored).toBeTruthy();
+  expect(stored?.token_hash).not.toBe(token);
 });
 
 test('destroy invalidates the session', async () => {
@@ -42,5 +41,5 @@ test('destroy invalidates the session', async () => {
   const { token } = await SessionService.create(participantId);
   await SessionService.destroy(token);
   const resolved = await SessionService.resolve(token);
-  assert.equal(resolved, null);
+  expect(resolved).toBeNull();
 });

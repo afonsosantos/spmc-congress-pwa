@@ -1,5 +1,4 @@
-import { test, mock } from 'node:test';
-import assert from 'node:assert/strict';
+import { test, expect, mock } from 'bun:test';
 import { createFakePool } from './helpers/fakePool.js';
 
 process.env.NODE_ENV = 'test';
@@ -16,31 +15,27 @@ process.env.ADMIN_USERNAME = 'admin';
 process.env.ADMIN_PASSWORD = 'super-secret-password';
 
 const fakePool = createFakePool();
-mock.module('../src/db/pool.js', { namedExports: { pool: fakePool } });
+mock.module('../src/db/pool.js', () => ({ pool: fakePool }));
 
 let nextPosition: any = null;
 let nextCheckins: any[] | null = [];
-mock.module('../src/services/pretixService.js', {
-  namedExports: {
-    PretixService: {
-      findValidPositionBySecret: async () => nextPosition,
-      getItem: async () => ({ id: 10, name: { en: 'Congress Registration' } }),
-      getPositionCheckins: async () => nextCheckins,
-    },
+mock.module('../src/services/pretixService.js', () => ({
+  PretixService: {
+    findValidPositionBySecret: async () => nextPosition,
+    getItem: async () => ({ id: 10, name: { en: 'Congress Registration' } }),
+    getPositionCheckins: async () => nextCheckins,
   },
-});
-mock.module('../src/services/pretalxService.js', {
-  namedExports: {
-    PretalxService: {
-      getSessions: async () => [{ id: 'sess-1', title: 'Talk', speakers: [], tags: [] }],
-      getSession: async (id: string) => (id === 'sess-1' ? { id: 'sess-1', title: 'Talk' } : null),
-      getRooms: async () => [],
-      getSpeakers: async () => [],
-      getTracks: async () => [],
-      startBackgroundRefresh: () => {},
-    },
+}));
+mock.module('../src/services/pretalxService.js', () => ({
+  PretalxService: {
+    getSessions: async () => [{ id: 'sess-1', title: 'Talk', speakers: [], tags: [] }],
+    getSession: async (id: string) => (id === 'sess-1' ? { id: 'sess-1', title: 'Talk' } : null),
+    getRooms: async () => [],
+    getSpeakers: async () => [],
+    getTracks: async () => [],
+    startBackgroundRefresh: () => {},
   },
-});
+}));
 
 const { createApp } = await import('../src/app.js');
 const request = (await import('supertest')).default;
@@ -69,31 +64,31 @@ function validPosition(overrides: Partial<Record<string, unknown>> = {}) {
 
 test('POST /api/auth/ticket rejects a QR that cannot be parsed', async () => {
   const res = await request(app).post('/api/auth/ticket').send({ secret: '!!' });
-  assert.equal(res.status, 400);
-  assert.equal(res.body.error, 'Não foi possível ler o QR code.');
+  expect(res.status).toBe(400);
+  expect(res.body.error).toBe('Não foi possível ler o QR code.');
 });
 
 test('POST /api/auth/ticket rejects an invalid/unknown ticket with a generic error', async () => {
   nextPosition = null;
   const res = await request(app).post('/api/auth/ticket').send({ secret: 'nonexistentsecret1' });
-  assert.equal(res.status, 401);
-  assert.equal(res.body.error, 'Este bilhete não é válido.');
+  expect(res.status).toBe(401);
+  expect(res.body.error).toBe('Este bilhete não é válido.');
 });
 
 test('POST /api/auth/ticket logs in on a valid ticket, sets httpOnly cookie, never redeems', async () => {
   nextPosition = validPosition();
   const res = await request(app).post('/api/auth/ticket').send({ secret: 'validsecret1234567' });
-  assert.equal(res.status, 200);
-  assert.equal(res.body.user.name, 'Maria Silva');
+  expect(res.status).toBe(200);
+  expect(res.body.user.name).toBe('Maria Silva');
   const cookie = res.headers['set-cookie']?.[0] ?? '';
-  assert.match(cookie, /spmc_session=/);
-  assert.match(cookie, /HttpOnly/i);
-  assert.match(cookie, /SameSite=Lax/i);
+  expect(cookie).toMatch(/spmc_session=/);
+  expect(cookie).toMatch(/HttpOnly/i);
+  expect(cookie).toMatch(/SameSite=Lax/i);
 });
 
 test('GET /api/auth/me requires authentication', async () => {
   const res = await request(app).get('/api/auth/me');
-  assert.equal(res.status, 401);
+  expect(res.status).toBe(401);
 });
 
 test('full session lifecycle: login -> me -> favourite -> logout -> me rejected', async () => {
@@ -101,25 +96,25 @@ test('full session lifecycle: login -> me -> favourite -> logout -> me rejected'
   const agent = request.agent(app);
 
   const login = await agent.post('/api/auth/ticket').send({ secret: 'fullflowsecret1234' });
-  assert.equal(login.status, 200);
+  expect(login.status).toBe(200);
 
   const me = await agent.get('/api/auth/me');
-  assert.equal(me.status, 200);
-  assert.equal(me.body.user.name, 'Maria Silva');
+  expect(me.status).toBe(200);
+  expect(me.body.user.name).toBe('Maria Silva');
 
   const fav = await agent.post('/api/me/schedule/sess-1');
-  assert.equal(fav.status, 201);
+  expect(fav.status).toBe(201);
 
   const schedule = await agent.get('/api/me/schedule');
-  assert.equal(schedule.status, 200);
-  assert.equal(schedule.body.sessions.length, 1);
-  assert.equal(schedule.body.sessions[0].id, 'sess-1');
+  expect(schedule.status).toBe(200);
+  expect(schedule.body.sessions.length).toBe(1);
+  expect(schedule.body.sessions[0].id).toBe('sess-1');
 
   const logout = await agent.post('/api/auth/logout');
-  assert.equal(logout.status, 200);
+  expect(logout.status).toBe(200);
 
   const meAfter = await agent.get('/api/auth/me');
-  assert.equal(meAfter.status, 401);
+  expect(meAfter.status).toBe(401);
 });
 
 test('favouriting an unknown session id 404s', async () => {
@@ -127,7 +122,7 @@ test('favouriting an unknown session id 404s', async () => {
   const agent = request.agent(app);
   await agent.post('/api/auth/ticket').send({ secret: 'unknownsesssecret1' });
   const res = await agent.post('/api/me/schedule/does-not-exist');
-  assert.equal(res.status, 404);
+  expect(res.status).toBe(404);
 });
 
 test('POST /api/me/refresh re-checks Pretix and persists check-in status', async () => {
@@ -136,54 +131,54 @@ test('POST /api/me/refresh re-checks Pretix and persists check-in status', async
   await agent.post('/api/auth/ticket').send({ secret: 'checkinflowsecret1' });
 
   const before = await agent.get('/api/auth/me');
-  assert.equal(before.body.user.checkedIn, false);
+  expect(before.body.user.checkedIn).toBe(false);
 
   nextCheckins = [{ datetime: '2027-04-18T09:00:00Z', type: 'entry' }];
   const refreshed = await agent.post('/api/me/refresh');
-  assert.equal(refreshed.status, 200);
-  assert.equal(refreshed.body.user.checkedIn, true);
+  expect(refreshed.status).toBe(200);
+  expect(refreshed.body.user.checkedIn).toBe(true);
 
   const after = await agent.get('/api/auth/me');
-  assert.equal(after.body.user.checkedIn, true);
+  expect(after.body.user.checkedIn).toBe(true);
 });
 
 test('POST /api/me/refresh requires authentication', async () => {
   const res = await request(app).post('/api/me/refresh');
-  assert.equal(res.status, 401);
+  expect(res.status).toBe(401);
 });
 
 test('admin endpoints reject unauthenticated / non-admin requests', async () => {
   const res = await request(app).get('/api/admin/announcements');
-  assert.equal(res.status, 401);
+  expect(res.status).toBe(401);
 });
 
 test('admin endpoints accept correct admin credentials', async () => {
   const res = await request(app)
     .get('/api/admin/announcements')
     .auth('admin', 'super-secret-password');
-  assert.equal(res.status, 200);
+  expect(res.status).toBe(200);
 });
 
 test('admin can list and update content pages, and the change is publicly visible', async () => {
-  await fakePool._state.contentPages.push({ slug: 'venue', title: 'Local', body: 'placeholder', updatedAt: new Date() });
+  fakePool._state.contentPages.push({ slug: 'venue', title: 'Local', body: 'placeholder', updatedAt: new Date() });
 
   const list = await request(app).get('/api/admin/content').auth('admin', 'super-secret-password');
-  assert.equal(list.status, 200);
-  assert.ok(list.body.pages.some((p: { slug: string }) => p.slug === 'venue'));
+  expect(list.status).toBe(200);
+  expect(list.body.pages.some((p: { slug: string }) => p.slug === 'venue')).toBe(true);
 
   const update = await request(app)
     .put('/api/admin/content/venue')
     .auth('admin', 'super-secret-password')
     .send({ title: 'Local do Congresso', body: 'Auditório Principal, Lisboa.' });
-  assert.equal(update.status, 200);
+  expect(update.status).toBe(200);
 
   const publicPage = await request(app).get('/api/content/venue');
-  assert.equal(publicPage.status, 200);
-  assert.equal(publicPage.body.page.title, 'Local do Congresso');
-  assert.equal(publicPage.body.page.body, 'Auditório Principal, Lisboa.');
+  expect(publicPage.status).toBe(200);
+  expect(publicPage.body.page.title).toBe('Local do Congresso');
+  expect(publicPage.body.page.body).toBe('Auditório Principal, Lisboa.');
 });
 
 test('admin content endpoints reject non-admin requests', async () => {
   const res = await request(app).put('/api/admin/content/venue').send({ title: 'x', body: 'y' });
-  assert.equal(res.status, 401);
+  expect(res.status).toBe(401);
 });

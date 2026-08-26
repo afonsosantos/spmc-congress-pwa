@@ -1,5 +1,4 @@
-import { test, before, after, mock } from 'node:test';
-import assert from 'node:assert/strict';
+import { test, expect, beforeAll, afterAll } from 'bun:test';
 
 process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL = 'postgres://test/test';
@@ -18,15 +17,15 @@ function jsonResponse(body: unknown, status = 200) {
 }
 
 let originalFetch: typeof fetch;
-before(() => {
+beforeAll(() => {
   originalFetch = global.fetch;
 });
-after(() => {
+afterAll(() => {
   global.fetch = originalFetch;
 });
 
 test('valid, paid, non-cancelled ticket is accepted', async () => {
-  global.fetch = mock.fn(async (url: string) => {
+  global.fetch = (async (url: string) => {
     if (String(url).includes('/orderpositions/')) {
       return jsonResponse({
         results: [
@@ -41,18 +40,18 @@ test('valid, paid, non-cancelled ticket is accepted', async () => {
   }) as unknown as typeof fetch;
 
   const position = await PretixService.findValidPositionBySecret('validsecret123');
-  assert.ok(position);
-  assert.equal(position?.order, 'ABCDE');
+  expect(position).toBeTruthy();
+  expect(position?.order).toBe('ABCDE');
 });
 
 test('unknown secret returns null', async () => {
-  global.fetch = mock.fn(async () => jsonResponse({ results: [] })) as unknown as typeof fetch;
+  global.fetch = (async () => jsonResponse({ results: [] })) as unknown as typeof fetch;
   const position = await PretixService.findValidPositionBySecret('doesnotexist123');
-  assert.equal(position, null);
+  expect(position).toBeNull();
 });
 
 test('cancelled position is rejected', async () => {
-  global.fetch = mock.fn(async (url: string) => {
+  global.fetch = (async (url: string) => {
     if (String(url).includes('/orderpositions/')) {
       return jsonResponse({ results: [{ id: 2, order: 'CANCEL', item: 10, canceled: true, blocked: null, valid_from: null, valid_until: null, answers: [] }] });
     }
@@ -60,11 +59,11 @@ test('cancelled position is rejected', async () => {
   }) as unknown as typeof fetch;
 
   const position = await PretixService.findValidPositionBySecret('cancelledsecret1');
-  assert.equal(position, null);
+  expect(position).toBeNull();
 });
 
 test('position on a cancelled/unpaid order is rejected', async () => {
-  global.fetch = mock.fn(async (url: string) => {
+  global.fetch = (async (url: string) => {
     if (String(url).includes('/orderpositions/')) {
       return jsonResponse({ results: [{ id: 3, order: 'UNPAID', item: 10, canceled: false, blocked: null, valid_from: null, valid_until: null, answers: [] }] });
     }
@@ -72,11 +71,11 @@ test('position on a cancelled/unpaid order is rejected', async () => {
   }) as unknown as typeof fetch;
 
   const position = await PretixService.findValidPositionBySecret('unpaidsecret1234');
-  assert.equal(position, null);
+  expect(position).toBeNull();
 });
 
 test('blocked position is rejected', async () => {
-  global.fetch = mock.fn(async (url: string) => {
+  global.fetch = (async (url: string) => {
     if (String(url).includes('/orderpositions/')) {
       return jsonResponse({ results: [{ id: 4, order: 'BLOCK', item: 10, canceled: false, blocked: ['fraud'], valid_from: null, valid_until: null, answers: [] }] });
     }
@@ -84,12 +83,12 @@ test('blocked position is rejected', async () => {
   }) as unknown as typeof fetch;
 
   const position = await PretixService.findValidPositionBySecret('blockedsecret123');
-  assert.equal(position, null);
+  expect(position).toBeNull();
 });
 
 test('never sends the ticket secret in a way that reaches the response body / no redeem call is made', async () => {
   const calls: string[] = [];
-  global.fetch = mock.fn(async (url: string) => {
+  global.fetch = (async (url: string) => {
     calls.push(String(url));
     if (String(url).includes('/orderpositions/')) {
       return jsonResponse({ results: [{ id: 5, order: 'OK', item: 10, canceled: false, blocked: null, valid_from: null, valid_until: null, answers: [] }] });
@@ -98,5 +97,5 @@ test('never sends the ticket secret in a way that reaches the response body / no
   }) as unknown as typeof fetch;
 
   await PretixService.findValidPositionBySecret('okaysecret1234');
-  assert.ok(calls.every((c) => !c.includes('/checkin')), 'no check-in/redeem endpoint should ever be called');
+  expect(calls.every((c) => !c.includes('/checkin'))).toBe(true);
 });

@@ -1,5 +1,4 @@
-import { test, mock } from 'node:test';
-import assert from 'node:assert/strict';
+import { test, expect, mock } from 'bun:test';
 import { createFakePool } from './helpers/fakePool.js';
 
 process.env.NODE_ENV = 'test';
@@ -13,14 +12,12 @@ process.env.PRETALX_BASE_URL = 'https://pretalx.example.com';
 process.env.PRETALX_EVENT = 'congresso2027';
 
 const fakePool = createFakePool();
-mock.module('../src/db/pool.js', { namedExports: { pool: fakePool } });
-mock.module('../src/services/pretixService.js', {
-  namedExports: {
-    PretixService: {
-      getItem: async () => ({ id: 10, name: { en: 'Congress Registration' } }),
-    },
+mock.module('../src/db/pool.js', () => ({ pool: fakePool }));
+mock.module('../src/services/pretixService.js', () => ({
+  PretixService: {
+    getItem: async () => ({ id: 10, name: { en: 'Congress Registration' } }),
   },
-});
+}));
 
 const { ParticipantService } = await import('../src/services/participantService.js');
 
@@ -50,14 +47,14 @@ test('DTO only exposes allow-listed answer identifiers, never raw Pretix payment
   const id = await ParticipantService.upsertFromPretix(position as any);
   const dto = await ParticipantService.findById(id);
 
-  assert.ok(dto);
-  assert.equal(dto?.name, 'Maria Silva');
-  assert.equal(dto?.email, 'maria@example.com');
-  assert.equal(dto?.ticket.product, 'Congress Registration');
-  assert.equal(dto?.checkedIn, false);
-  assert.deepEqual(Object.keys(dto!.answers).sort(), ['dietary_restrictions', 'workshop']);
-  assert.equal('payment_method' in dto!.answers, false);
-  assert.equal(JSON.stringify(dto).includes('should-never-be-stored'), false);
+  expect(dto).toBeTruthy();
+  expect(dto?.name).toBe('Maria Silva');
+  expect(dto?.email).toBe('maria@example.com');
+  expect(dto?.ticket.product).toBe('Congress Registration');
+  expect(dto?.checkedIn).toBe(false);
+  expect(Object.keys(dto!.answers).sort()).toEqual(['dietary_restrictions', 'workshop']);
+  expect('payment_method' in dto!.answers).toBe(false);
+  expect(JSON.stringify(dto).includes('should-never-be-stored')).toBe(false);
 });
 
 test('falls back to the order-level email when the ticket has no attendee email, and reports check-in status', async () => {
@@ -82,6 +79,6 @@ test('falls back to the order-level email when the ticket has no attendee email,
   const id = await ParticipantService.upsertFromPretix(position as any);
   const dto = await ParticipantService.findById(id);
 
-  assert.equal(dto?.email, 'joao@example.com');
-  assert.equal(dto?.checkedIn, true);
+  expect(dto?.email).toBe('joao@example.com');
+  expect(dto?.checkedIn).toBe(true);
 });

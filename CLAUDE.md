@@ -14,18 +14,21 @@ A mobile-first PWA for the SPMC Congress 2027, replacing the attendee-facing par
 Run from `backend/` or `frontend/` respectively (no root-level script runner).
 
 ```bash
-# backend
-npm run dev          # tsx watch, loads env from process.env (not dotenv — see Environment)
-npm run build         # tsc + copies src/db/migrations/*.sql into dist/db/migrations
-npm run migrate        # runs pending SQL migrations against DATABASE_URL
-npm test              # node --test with --experimental-test-module-mocks; run a single file:
-                       #   node --experimental-test-module-mocks --import tsx --test test/pretixQr.test.ts
+# backend — Bun runs the TypeScript directly, no compile step
+bun run dev            # bun --watch src/index.ts, loads env from process.env (not dotenv — see Environment)
+bun run typecheck      # tsc --noEmit — the only place types are actually checked; nothing else in the
+                        # pipeline compiles or blocks on type errors
+bun run migrate        # runs pending SQL migrations against DATABASE_URL
+bun test                # runs scripts/run-tests.ts, which shells out to `bun test <file>` once per
+                        # file — see Testing approach below for why single-file isolation matters here;
+                        # to run just one file directly: bun test test/pretixQr.test.ts
 
 # frontend
-npm run dev            # vite, HTTPS via @vitejs/plugin-basic-ssl (self-signed) — needed for
+bun run dev             # vite, HTTPS via @vitejs/plugin-basic-ssl (self-signed) — needed for
                         # camera access when testing the QR scanner from a phone on the LAN
-npm run build           # vue-tsc -b && vite build
-npm test               # node --experimental-strip-types --test test/pretixQr.test.ts
+bun run build            # vue-tsc -b && vite build (still needs an actual bundler — Bun doesn't
+                        # replace Vite here, it's just the package manager/script runner)
+bun test                 # bun:test, test/pretixQr.test.ts
 ```
 
 Full stack: `docker compose up -d --build` from the repo root (needs `.env`, see `.env.example`). Production hosts that pull the CI-built image instead of building locally use `docker-compose.prod.yml`.
@@ -56,18 +59,22 @@ No Pretalx credentials exist anywhere in this app — the public API returns con
 
 Routes (`backend/src/routes/*.ts`) are thin; behavior lives in `backend/src/services/*.ts`. `backend/src/app.ts` wires Helmet/CORS/rate-limiting/cookies, mounts routers under `/api/*`, and — when `backend/public/` exists (populated by the Docker build copying the frontend's `dist/`) — serves the built SPA with a catch-all fallback. `express-async-errors` is imported for side effects so async route handlers don't need manual try/catch to reach the error middleware.
 
+There's no `dist/` — the backend runs straight from `src/` under Bun, in dev and in the production image alike. `tsc` only ever runs via `bun run typecheck`, never as part of starting or deploying the app.
+
 Sessions/favourites/announcements/push-subscriptions/content-pages live in Postgres (`backend/src/db/migrations/`); there's no ORM — raw `pg` queries via `backend/src/db/pool.ts`. Migrations are plain numbered `.sql` files tracked in a `schema_migrations` table, applied by `backend/src/db/migrate.ts` (also invoked automatically at server startup in `index.ts`).
 
 ### Frontend shape
 
-Pinia stores (`frontend/src/stores/*.ts`) own all server state; views/components read from stores rather than calling `api` directly where a store exists. `frontend/src/lib/api.ts` is the only fetch wrapper — same-origin `/api` only, `credentials: 'include'`, never carries Pretix/Pretalx credentials (there are none client-side). The PWA caches the public program/content/announcements via Workbox (`vite.config.ts` `runtimeCaching`) plus a `localStorage` fallback in `program.ts` for offline viewing — auth/participant data is deliberately excluded from that caching.
+Pinia stores (`frontend/src/stores/*.ts`) own all server state; views/components read from stores rather than calling `api` directly where a store exists. `frontend/src/lib/api.ts` is the only fetch wrapper — same-origin `/api` only, `credentials: 'include'`, never carries Pretix/Pretalx credentials (there are none client-side). The service worker (`frontend/src/sw.ts`, injected via vite-plugin-pwa's `injectManifest` strategy — not the zero-config `generateSW` mode) handles `push`/`notificationclick` explicitly and caches the public program/content/announcements via Workbox, plus a `localStorage` fallback in `program.ts` for offline viewing — auth/participant data is deliberately excluded from that caching. If you need to change runtime caching rules, edit `sw.ts` directly; `vite.config.ts`'s `VitePWA()` call only carries the manifest and build wiring now.
 
 `useTheme.ts` and other cross-cutting composables must be invoked eagerly in `main.ts`, not left to whichever lazy-loaded route happens to import them first — a composable that applies a side effect (like the dark-mode class) only runs when its module is first imported, so gating it behind a specific view causes it to activate inconsistently depending on navigation.
 
 ### Testing approach
 
-No test database — `backend/test/helpers/fakePool.ts` is a hand-written in-memory stand-in for `pg.Pool` that pattern-matches on the SQL text the app actually issues; extend it by adding a new `sql.startsWith(...)` branch when a new query shape is introduced, mirroring the real query text. Pretix/Pretalx are mocked via `mock.module()` (Node's experimental module mocking) or by stubbing `global.fetch` — real upstream services must never be hit from tests.
+No test database — `backend/test/helpers/fakePool.ts` is a hand-written in-memory stand-in for `pg.Pool` that pattern-matches on the SQL text the app actually issues; extend it by adding a new `sql.startsWith(...)` branch when a new query shape is introduced, mirroring the real query text. Pretix/Pretalx are mocked via `bun:test`'s `mock.module(specifier, () => ({...}))` (note the factory-function signature — this is not the same API as Node's `node:test` module mocking) or by stubbing `global.fetch` — real upstream services must never be hit from tests.
+
+**`mock.module()` is process-wide in Bun**, not scoped to the file that calls it — unlike `node --test`, `bun test <a> <b>` runs every file in one process, so a mock registered in one file leaks into every file imported afterwards. That's why `bun test` is never invoked directly on the whole `test/` directory here; `backend/scripts/run-tests.ts` spawns one `bun test <file>` subprocess per test file instead. Frontend has only one test file so this doesn't come up there, but keep it in mind if a second one gets added.
 
 ## Deployment
 
-Single multi-stage `Dockerfile` builds frontend and backend separately, copies the frontend's `dist/` into the backend image as `public/`, and runs one Express process serving both the API and the static SPA. `.github/workflows/docker-publish.yml` builds and pushes to `ghcr.io/afonsosantos/spmc-congress-pwa` on push to `main`; `docker-compose.prod.yml` pulls that image instead of building (for hosts like a Proxmox LXC that shouldn't build locally). GHCR packages default to private even on a public repo — check package visibility before expecting an unauthenticated `pull` to work.
+Single multi-stage `Dockerfile`, `oven/bun:1-alpine` base throughout (no Node anywhere in the image). The frontend stage `bun install`s and `vite build`s; the runtime stage `bun install --production`s the backend's dependencies and copies `backend/src` in as-is — Bun executes it directly, so there's nothing to compile or copy out of a `dist/`. The frontend's `dist/` lands in the runtime image as `public/`, served by the one Express process alongside the API. `.github/workflows/docker-publish.yml` builds and pushes to `ghcr.io/afonsosantos/spmc-congress-pwa` on push to `main`; `docker-compose.prod.yml` pulls that image instead of building (for hosts like a Proxmox LXC that shouldn't build locally). GHCR packages default to private even on a public repo — check package visibility before expecting an unauthenticated `pull` to work.

@@ -5,8 +5,8 @@ Mobile-first PWA for the II Congresso Internacional de Medicina Chinesa. Vue 3 +
 ## Stack
 
 - Frontend: Vue 3, TypeScript, Vite, Vue Router, Pinia, Tailwind CSS, PWA (Workbox)
-- Backend: Node.js, Express, PostgreSQL
-- Deployment: single Docker image (multi-stage build) + `docker compose`
+- Backend: Bun, Express, PostgreSQL — runs TypeScript directly, no compile step
+- Deployment: single Docker image (`oven/bun` base, multi-stage build) + `docker compose`
 
 ## Local development
 
@@ -41,8 +41,8 @@ docker compose -f docker-compose.prod.yml up -d
 ## Tests
 
 ```bash
-cd backend && npm test
-cd frontend && npm test
+cd backend && bun test
+cd frontend && bun test
 ```
 
 ## License

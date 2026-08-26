@@ -3,6 +3,7 @@ import { onMounted } from 'vue';
 import TopNav from '@/components/TopNav.vue';
 import BottomNav from '@/components/BottomNav.vue';
 import OfflineBanner from '@/components/OfflineBanner.vue';
+import RouteProgressBar from '@/components/RouteProgressBar.vue';
 import InstallPrompt from '@/components/InstallPrompt.vue';
 import OnboardingPrompt from '@/components/OnboardingPrompt.vue';
 import { useAuthStore } from '@/stores/auth';
@@ -24,10 +25,15 @@ onMounted(async () => {
 </script>
 
 <template>
+  <RouteProgressBar />
   <OfflineBanner />
   <TopNav />
   <main class="min-h-[calc(100dvh-4rem)] pb-20 md:pb-10">
-    <RouterView />
+    <RouterView v-slot="{ Component }">
+      <Transition name="page" mode="out-in">
+        <component :is="Component" />
+      </Transition>
+    </RouterView>
   </main>
   <BottomNav />
   <InstallPrompt />
