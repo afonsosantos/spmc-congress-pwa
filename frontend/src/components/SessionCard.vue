@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import Icon from '@/components/Icon.vue';
 import { formatTime } from '@/lib/format';
 import type { Session } from '@/stores/program';
@@ -9,6 +10,7 @@ import { useAuthStore } from '@/stores/auth';
 const props = defineProps<{ session: Session }>();
 const schedule = useScheduleStore();
 const auth = useAuthStore();
+const { t } = useI18n();
 
 function toggle(e: Event) {
   e.preventDefault();
@@ -51,7 +53,7 @@ function toggle(e: Event) {
         v-if="auth.isAuthenticated"
         type="button"
         class="shrink-0 w-9 h-9 grid place-items-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
-        :aria-label="schedule.isFavourite(session.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'"
+        :aria-label="schedule.isFavourite(session.id) ? t('session.removeFavourite') : t('session.addFavouriteAria')"
         @click="toggle"
       >
         <Icon

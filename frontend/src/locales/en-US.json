@@ -1,0 +1,165 @@
+{
+  "nav": {
+    "home": "Home",
+    "program": "Program",
+    "mySchedule": "My Schedule",
+    "myScheduleShort": "Schedule",
+    "announcements": "Announcements",
+    "more": "More",
+    "myTicket": "My Ticket",
+    "loginWithTicket": "Log in with ticket"
+  },
+  "common": {
+    "back": "Back",
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "loading": "Loading…",
+    "retry": "Retry",
+    "genericError": "Couldn't connect to the server.",
+    "offline": "No Internet connection. The saved schedule is still available.",
+    "mainNavigation": "Main navigation",
+    "tooManyAttempts": "Too many attempts. Please try again later."
+  },
+  "home": {
+    "title": "2nd International Congress of Chinese Medicine",
+    "subtitle": "SPMC 2027",
+    "now": "Now",
+    "next": "Next",
+    "shortcuts": "Shortcuts",
+    "noCurrentSession": "No session in progress",
+    "noUpcomingSessions": "No upcoming sessions",
+    "shortcutTicket": "My Ticket",
+    "shortcutSchedule": "My Schedule",
+    "shortcutAnnouncements": "Announcements",
+    "shortcutInfo": "Information"
+  },
+  "onboarding": {
+    "dialogAria": "Welcome",
+    "title": "Welcome to SPMC 2027",
+    "body": "Start by scanning the QR code printed on your ticket to access your personal schedule, digital ticket, and notifications.",
+    "scanCta": "Scan ticket QR",
+    "dismiss": "Explore without logging in"
+  },
+  "program": {
+    "title": "Program",
+    "searchPlaceholder": "Search sessions, speakers, rooms…",
+    "filters": "Filters",
+    "day": "Day",
+    "room": "Room",
+    "track": "Track",
+    "clearFilters": "Clear filters",
+    "noResults": "No results",
+    "noResultsHint": "Try a different search or remove filters.",
+    "loadError": "Couldn't load the program",
+    "loadErrorHint": "Check your Internet connection."
+  },
+  "session": {
+    "notFound": "Session not found",
+    "speakers": "Speakers",
+    "addFavourite": "Add",
+    "inSchedule": "In favourites",
+    "removeFavourite": "Remove from favourites",
+    "addFavouriteAria": "Add to favourites"
+  },
+  "schedule": {
+    "title": "My Schedule",
+    "loginPrompt": "Log in with your ticket",
+    "loginPromptHint": "You need to log in to save favourite sessions.",
+    "loginCta": "Log in with ticket",
+    "empty": "No saved sessions yet",
+    "emptyHint": "Browse the program and mark the sessions you don't want to miss.",
+    "browseProgram": "View program"
+  },
+  "announcements": {
+    "title": "Announcements",
+    "empty": "No announcements right now",
+    "loadError": "Couldn't load announcements",
+    "readMore": "Read more →",
+    "priority": {
+      "INFO": "Info",
+      "WARNING": "Warning",
+      "IMPORTANT": "Important"
+    }
+  },
+  "more": {
+    "title": "More",
+    "congressInfo": "Congress Information",
+    "preferences": "Preferences",
+    "appearance": "Appearance",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "language": "Language",
+    "enableNotifications": "Enable notifications",
+    "pushSubscribed": "Notifications enabled.",
+    "pushDenied": "Notification permission denied.",
+    "pushIosNotInstalled": "On iPhone, notifications only work after installing the app on the Home Screen (Share → Add to Home Screen) and opening it from there. Requires iOS 16.4 or later.",
+    "pushUnsupported": "Your browser doesn't support notifications.",
+    "pushDisabled": "Push notifications aren't configured for this event.",
+    "legal": "Legal",
+    "logout": "Log out",
+    "deleteAccount": "Delete my data from this app",
+    "deleteAccountConfirm": "This permanently deletes your data from this app (your Pretix registration is not affected). Continue?",
+    "viewTicket": "View ticket",
+    "links": {
+      "about": "About the Congress",
+      "venue": "Venue",
+      "directions": "Getting There",
+      "parking": "Parking",
+      "accommodation": "Accommodation",
+      "food": "Food",
+      "sponsors": "Sponsors",
+      "committee": "Organizing Committee",
+      "contacts": "Contacts",
+      "privacy": "Privacy Policy",
+      "terms": "Terms and Conditions"
+    }
+  },
+  "login": {
+    "title": "Log in with ticket",
+    "subtitle": "Point the camera at the QR code printed on your Pretix ticket.",
+    "preparingCamera": "Preparing camera…",
+    "cameraDenied": "Camera permission denied. Enable camera access in your browser settings or enter the code manually.",
+    "cameraUnavailable": "Couldn't access the camera. Enter the code manually.",
+    "validating": "Validating ticket…",
+    "manualToggleShow": "Enter code manually",
+    "manualToggleHide": "Hide",
+    "manualPlaceholder": "Ticket code",
+    "submit": "Log in",
+    "qrUnreadable": "Couldn't read the QR code."
+  },
+  "ticket": {
+    "title": "My Ticket",
+    "cardLabel": "Ticket · SPMC 2027",
+    "checkedIn": "Checked in",
+    "notCheckedIn": "Not checked in yet",
+    "category": "Category",
+    "variation": "Variation",
+    "workshop": "Workshop",
+    "email": "Email",
+    "notice": "This screen identifies you as a participant in the app. For physical check-in at the congress, use the original ticket (PDF/email) sent by Pretix. Check-in status updates every time you open this screen."
+  },
+  "content": {
+    "notAvailable": "Page not available"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "hint": "Check the address or go back home.",
+    "cta": "Home"
+  },
+  "install": {
+    "dialogAria": "Install app",
+    "title": "Install SPMC 2027",
+    "iosHint": "Tap Share and then \"Add to Home Screen\".",
+    "genericHint": "Quick access and offline use of the program.",
+    "installCta": "Install",
+    "dismissCta": "Not now"
+  },
+  "errors": {
+    "networkError": "Couldn't connect to the server.",
+    "invalidTicket": "This ticket is not valid.",
+    "unreadableQr": "Couldn't read the QR code."
+  }
+}

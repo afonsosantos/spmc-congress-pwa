@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { api, ApiError } from '@/lib/api';
+import { i18n, translateApiErrorMessage } from '@/lib/i18n';
 
 export interface Participant {
   id: string;
@@ -42,7 +43,9 @@ export const useAuthStore = defineStore('auth', {
         this.user = user;
         return true;
       } catch (err) {
-        this.loginError = err instanceof ApiError ? err.message : 'Não foi possível ligar ao servidor.';
+        this.loginError = err instanceof ApiError
+          ? translateApiErrorMessage(err.message)
+          : (i18n.global.t as (k: string) => string)('errors.networkError');
         return false;
       }
     },

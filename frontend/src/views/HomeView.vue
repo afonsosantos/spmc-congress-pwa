@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
 import Icon from '@/components/Icon.vue';
 import PriorityBadge from '@/components/PriorityBadge.vue';
@@ -11,6 +12,7 @@ import { useScheduleStore } from '@/stores/schedule';
 import { useNow } from '@/composables/useNow';
 import { formatDate, formatTime } from '@/lib/format';
 
+const { t } = useI18n();
 const program = useProgramStore();
 const announcements = useAnnouncementsStore();
 const auth = useAuthStore();
@@ -42,20 +44,20 @@ const topAnnouncement = computed(
   () => announcements.announcements.find((a) => a.priority === 'IMPORTANT' && !a.read) ?? announcements.announcements[0]
 );
 
-const shortcuts = [
-  { to: '/bilhete', icon: 'ticket', label: 'Meu Bilhete', requiresAuth: true },
-  { to: '/meu-horario', icon: 'schedule', label: 'Meu Horário', requiresAuth: false },
-  { to: '/anuncios', icon: 'bell', label: 'Avisos', requiresAuth: false },
-  { to: '/info/venue', icon: 'location', label: 'Informação', requiresAuth: false },
-];
+const shortcuts = computed(() => [
+  { to: '/bilhete', icon: 'ticket', label: t('home.shortcutTicket'), requiresAuth: true },
+  { to: '/meu-horario', icon: 'schedule', label: t('home.shortcutSchedule'), requiresAuth: false },
+  { to: '/anuncios', icon: 'bell', label: t('home.shortcutAnnouncements'), requiresAuth: false },
+  { to: '/info/venue', icon: 'location', label: t('home.shortcutInfo'), requiresAuth: false },
+]);
 </script>
 
 <template>
   <div class="max-w-3xl mx-auto px-4 pt-6 pb-8 md:px-8">
     <header class="mb-6">
       <p class="text-sm text-slate-500 dark:text-slate-400 capitalize">{{ formatDate(now.toISOString()) }}</p>
-      <h1 class="text-2xl font-bold mt-1">II Congresso Internacional de Medicina Chinesa</h1>
-      <p class="text-brand-700 dark:text-brand-400 font-medium">SPMC 2027</p>
+      <h1 class="text-2xl font-bold mt-1">{{ t('home.title') }}</h1>
+      <p class="text-brand-700 dark:text-brand-400 font-medium">{{ t('home.subtitle') }}</p>
     </header>
 
     <RouterLink
@@ -65,7 +67,7 @@ const shortcuts = [
     >
       <span class="flex items-center gap-3">
         <Icon name="qr" class="w-6 h-6" />
-        <span class="font-semibold">Entrar com bilhete</span>
+        <span class="font-semibold">{{ t('nav.loginWithTicket') }}</span>
       </span>
       <Icon name="chevronRight" class="w-5 h-5" />
     </RouterLink>
@@ -85,7 +87,7 @@ const shortcuts = [
     </section>
 
     <section class="mb-6">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">Agora</h2>
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">{{ t('home.now') }}</h2>
       <div
         v-if="program.status === 'loading' && !program.sessions.length"
         class="rounded-2xl border border-slate-200 dark:border-slate-800 p-4 skeleton h-20"
@@ -103,11 +105,11 @@ const shortcuts = [
           {{ currentSession.room.name }}
         </p>
       </RouterLink>
-      <EmptyState v-else icon="clock" title="Sem sessão a decorrer" />
+      <EmptyState v-else icon="clock" :title="t('home.noCurrentSession')" />
     </section>
 
     <section class="mb-6">
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">Próximo</h2>
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">{{ t('home.next') }}</h2>
       <div v-if="nextSessions.length" class="space-y-2">
         <RouterLink
           v-for="s in nextSessions"
@@ -122,11 +124,11 @@ const shortcuts = [
           <Icon name="chevronRight" class="w-4 h-4 text-slate-400 shrink-0" />
         </RouterLink>
       </div>
-      <EmptyState v-else icon="program" title="Sem próximas sessões" />
+      <EmptyState v-else icon="program" :title="t('home.noUpcomingSessions')" />
     </section>
 
     <section>
-      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">Atalhos</h2>
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">{{ t('home.shortcuts') }}</h2>
       <div class="grid grid-cols-2 gap-3">
         <RouterLink
           v-for="s in shortcuts"

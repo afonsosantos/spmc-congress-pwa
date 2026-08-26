@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
 import Icon from '@/components/Icon.vue';
 import EmptyState from '@/components/EmptyState.vue';
 import { api } from '@/lib/api';
 
 const props = defineProps<{ slug: string }>();
+const { t } = useI18n();
 
 interface Page {
   slug: string;
@@ -35,7 +37,7 @@ watch(() => props.slug, load, { immediate: true });
 <template>
   <div class="max-w-2xl mx-auto px-4 pt-6 pb-10 md:px-8">
     <RouterLink to="/mais" class="inline-flex items-center gap-1 text-sm text-slate-500 mb-4">
-      <Icon name="chevronLeft" class="w-4 h-4" /> Mais
+      <Icon name="chevronLeft" class="w-4 h-4" /> {{ t('nav.more') }}
     </RouterLink>
 
     <div v-if="status === 'loading'" class="space-y-3">
@@ -44,7 +46,7 @@ watch(() => props.slug, load, { immediate: true });
       <div class="skeleton h-4 w-5/6"></div>
     </div>
 
-    <EmptyState v-else-if="status === 'error' || !page" icon="doc" title="Página não disponível" />
+    <EmptyState v-else-if="status === 'error' || !page" icon="doc" :title="t('content.notAvailable')" />
 
     <template v-else>
       <h1 class="text-xl font-bold mb-4">{{ page.title }}</h1>

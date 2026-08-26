@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import Icon from '@/components/Icon.vue';
+import { ONBOARDING_SEEN_KEY } from '@/lib/onboarding';
+
+const { t } = useI18n();
 
 /**
  * Custom "Instalar aplicação" banner.
@@ -63,7 +67,9 @@ function dismiss() {
 }
 
 onMounted(() => {
-  if (isStandalone() || recentlyDismissed()) return;
+  // Don't stack this on top of the first-run onboarding prompt — it'll
+  // show on the next visit instead, once onboarding has been dismissed.
+  if (isStandalone() || recentlyDismissed() || !localStorage.getItem(ONBOARDING_SEEN_KEY)) return;
 
   window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt);
   window.addEventListener('appinstalled', onAppInstalled);
@@ -93,31 +99,31 @@ onUnmounted(() => {
       v-if="visible"
       class="fixed inset-x-0 bottom-16 md:bottom-4 z-40 mx-auto max-w-md px-4"
       role="dialog"
-      aria-label="Instalar aplicação"
+      :aria-label="t('install.dialogAria')"
     >
       <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-lg p-4 flex items-start gap-3">
         <div class="w-10 h-10 rounded-xl bg-brand-700 text-white grid place-items-center shrink-0 font-bold text-sm">SP</div>
 
         <div class="min-w-0 flex-1">
-          <p class="font-semibold text-sm">Instalar SPMC 2027</p>
+          <p class="font-semibold text-sm">{{ t('install.title') }}</p>
           <p v-if="showIosHint" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Toque em <Icon name="ticket" class="w-3.5 h-3.5 inline -mt-0.5" /> Partilhar e depois em "Adicionar ao Ecrã Principal".
+            <Icon name="ticket" class="w-3.5 h-3.5 inline -mt-0.5" /> {{ t('install.iosHint') }}
           </p>
           <p v-else class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Acesso rápido e utilização offline do programa.
+            {{ t('install.genericHint') }}
           </p>
 
           <div v-if="!showIosHint" class="flex gap-2 mt-3">
             <button type="button" class="px-3 py-1.5 rounded-full bg-brand-700 text-white text-xs font-semibold" @click="install">
-              Instalar
+              {{ t('install.installCta') }}
             </button>
             <button type="button" class="px-3 py-1.5 rounded-full text-xs font-semibold text-slate-500" @click="dismiss">
-              Agora não
+              {{ t('install.dismissCta') }}
             </button>
           </div>
         </div>
 
-        <button type="button" class="shrink-0 w-7 h-7 grid place-items-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Fechar" @click="dismiss">
+        <button type="button" class="shrink-0 w-7 h-7 grid place-items-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" :aria-label="t('common.close')" @click="dismiss">
           <Icon name="close" class="w-4 h-4" />
         </button>
       </div>

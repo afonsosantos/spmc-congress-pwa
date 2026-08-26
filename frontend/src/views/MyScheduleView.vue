@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
 import SessionCard from '@/components/SessionCard.vue';
 import EmptyState from '@/components/EmptyState.vue';
@@ -9,6 +10,7 @@ import { useScheduleStore } from '@/stores/schedule';
 import { useAuthStore } from '@/stores/auth';
 import { formatDate, dayKey } from '@/lib/format';
 
+const { t } = useI18n();
 const program = useProgramStore();
 const schedule = useScheduleStore();
 const auth = useAuthStore();
@@ -37,11 +39,11 @@ const grouped = computed(() => {
 
 <template>
   <div class="max-w-3xl mx-auto px-4 pt-6 pb-8 md:px-8">
-    <h1 class="text-xl font-bold mb-4">Meu Horário</h1>
+    <h1 class="text-xl font-bold mb-4">{{ t('schedule.title') }}</h1>
 
-    <EmptyState v-if="!auth.isAuthenticated" icon="ticket" title="Entre com o seu bilhete" message="Para guardar sessões favoritas precisa de iniciar sessão.">
+    <EmptyState v-if="!auth.isAuthenticated" icon="ticket" :title="t('schedule.loginPrompt')" :message="t('schedule.loginPromptHint')">
       <RouterLink to="/entrar" class="mt-4 px-5 py-2.5 rounded-full bg-brand-700 text-white text-sm font-semibold">
-        Entrar com bilhete
+        {{ t('schedule.loginCta') }}
       </RouterLink>
     </EmptyState>
 
@@ -50,11 +52,11 @@ const grouped = computed(() => {
     <EmptyState
       v-else-if="!favouriteSessions.length"
       icon="star"
-      title="Ainda não tem sessões guardadas"
-      message="Explore o programa e marque as sessões que não quer perder."
+      :title="t('schedule.empty')"
+      :message="t('schedule.emptyHint')"
     >
       <RouterLink to="/programa" class="mt-4 px-5 py-2.5 rounded-full bg-brand-700 text-white text-sm font-semibold">
-        Ver programa
+        {{ t('schedule.browseProgram') }}
       </RouterLink>
     </EmptyState>
 

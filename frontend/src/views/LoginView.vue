@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import jsQR from 'jsqr';
 import Icon from '@/components/Icon.vue';
@@ -7,6 +8,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useScheduleStore } from '@/stores/schedule';
 import { parsePretixTicketQr } from '@/lib/pretixQr';
 
+const { t } = useI18n();
 const auth = useAuthStore();
 const schedule = useScheduleStore();
 const router = useRouter();
@@ -72,7 +74,7 @@ function stopCamera() {
 async function handleScan(raw: string) {
   const parsed = parsePretixTicketQr(raw);
   if (!parsed) {
-    auth.loginError = 'Não foi possível ler o QR code.';
+    auth.loginError = t('login.qrUnreadable');
     rafId = requestAnimationFrame(tick);
     return;
   }
@@ -96,7 +98,7 @@ async function submit(secret: string) {
 function submitManual() {
   const parsed = parsePretixTicketQr(manualSecret.value);
   if (!parsed) {
-    auth.loginError = 'Não foi possível ler o QR code.';
+    auth.loginError = t('login.qrUnreadable');
     return;
   }
   submit(parsed.secret);
@@ -108,9 +110,9 @@ onBeforeUnmount(stopCamera);
 
 <template>
   <div class="max-w-md mx-auto px-4 pt-6 pb-10 md:px-8">
-    <h1 class="text-xl font-bold mb-1">Entrar com bilhete</h1>
+    <h1 class="text-xl font-bold mb-1">{{ t('login.title') }}</h1>
     <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">
-      Aponte a câmara para o código QR impresso no seu bilhete do Pretix.
+      {{ t('login.subtitle') }}
     </p>
 
     <div class="relative rounded-2xl overflow-hidden bg-black aspect-square mb-4">
@@ -122,33 +124,33 @@ onBeforeUnmount(stopCamera);
         class="absolute inset-0 flex flex-col items-center justify-center gap-3 text-white text-center px-6 bg-black/70"
       >
         <Icon name="qr" class="w-10 h-10" />
-        <p v-if="cameraState === 'starting'" class="text-sm">A preparar a câmara…</p>
+        <p v-if="cameraState === 'starting'" class="text-sm">{{ t('login.preparingCamera') }}</p>
         <p v-else-if="cameraState === 'denied'" class="text-sm">
-          Permissão de câmara negada. Ative o acesso à câmara nas definições do navegador ou insira o código manualmente.
+          {{ t('login.cameraDenied') }}
         </p>
         <p v-else-if="cameraState === 'unsupported' || cameraState === 'unavailable'" class="text-sm">
-          Não foi possível aceder à câmara. Insira o código manualmente.
+          {{ t('login.cameraUnavailable') }}
         </p>
       </div>
 
-      <div v-if="submitting" class="absolute inset-0 grid place-items-center bg-black/60 text-white text-sm">A validar bilhete…</div>
+      <div v-if="submitting" class="absolute inset-0 grid place-items-center bg-black/60 text-white text-sm">{{ t('login.validating') }}</div>
     </div>
 
     <p v-if="auth.loginError" class="text-sm text-rose-600 dark:text-rose-400 mb-4">{{ auth.loginError }}</p>
 
     <button type="button" class="text-sm font-semibold text-brand-700 dark:text-brand-400 mb-3" @click="showManual = !showManual">
-      {{ showManual ? 'Ocultar' : 'Introduzir código manualmente' }}
+      {{ showManual ? t('login.manualToggleHide') : t('login.manualToggleShow') }}
     </button>
 
     <form v-if="showManual" class="flex gap-2" @submit.prevent="submitManual">
       <input
         v-model="manualSecret"
         type="text"
-        placeholder="Código do bilhete"
+        :placeholder="t('login.manualPlaceholder')"
         class="flex-1 px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm"
       />
       <button type="submit" class="px-4 py-2.5 rounded-xl bg-brand-700 text-white text-sm font-semibold" :disabled="submitting">
-        Entrar
+        {{ t('login.submit') }}
       </button>
     </form>
   </div>

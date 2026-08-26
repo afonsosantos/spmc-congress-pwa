@@ -1,0 +1,165 @@
+{
+  "nav": {
+    "home": "Início",
+    "program": "Programa",
+    "mySchedule": "Meu Horário",
+    "myScheduleShort": "Horário",
+    "announcements": "Avisos",
+    "more": "Mais",
+    "myTicket": "Meu Bilhete",
+    "loginWithTicket": "Entrar com bilhete"
+  },
+  "common": {
+    "back": "Voltar",
+    "close": "Fechar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "loading": "A carregar…",
+    "retry": "Tentar novamente",
+    "genericError": "Não foi possível ligar ao servidor.",
+    "offline": "Sem ligação à Internet. O programa guardado continua disponível.",
+    "mainNavigation": "Navegação principal",
+    "tooManyAttempts": "Demasiadas tentativas. Tente novamente mais tarde."
+  },
+  "home": {
+    "title": "II Congresso Internacional de Medicina Chinesa",
+    "subtitle": "SPMC 2027",
+    "now": "Agora",
+    "next": "Próximo",
+    "shortcuts": "Atalhos",
+    "noCurrentSession": "Sem sessão a decorrer",
+    "noUpcomingSessions": "Sem próximas sessões",
+    "shortcutTicket": "Meu Bilhete",
+    "shortcutSchedule": "Meu Horário",
+    "shortcutAnnouncements": "Avisos",
+    "shortcutInfo": "Informação"
+  },
+  "onboarding": {
+    "dialogAria": "Bem-vindo",
+    "title": "Bem-vindo ao SPMC 2027",
+    "body": "Comece por ler o código QR impresso no seu bilhete para aceder ao seu horário pessoal, bilhete digital e notificações.",
+    "scanCta": "Ler QR do bilhete",
+    "dismiss": "Explorar sem entrar"
+  },
+  "program": {
+    "title": "Programa",
+    "searchPlaceholder": "Pesquisar sessões, oradores, salas…",
+    "filters": "Filtros",
+    "day": "Dia",
+    "room": "Sala",
+    "track": "Área",
+    "clearFilters": "Limpar filtros",
+    "noResults": "Sem resultados",
+    "noResultsHint": "Tente outra pesquisa ou remova filtros.",
+    "loadError": "Não foi possível carregar o programa",
+    "loadErrorHint": "Verifique a sua ligação à Internet."
+  },
+  "session": {
+    "notFound": "Sessão não encontrada",
+    "speakers": "Oradores",
+    "addFavourite": "Adicionar",
+    "inSchedule": "Nos favoritos",
+    "removeFavourite": "Remover dos favoritos",
+    "addFavouriteAria": "Adicionar aos favoritos"
+  },
+  "schedule": {
+    "title": "Meu Horário",
+    "loginPrompt": "Entre com o seu bilhete",
+    "loginPromptHint": "Para guardar sessões favoritas precisa de iniciar sessão.",
+    "loginCta": "Entrar com bilhete",
+    "empty": "Ainda não tem sessões guardadas",
+    "emptyHint": "Explore o programa e marque as sessões que não quer perder.",
+    "browseProgram": "Ver programa"
+  },
+  "announcements": {
+    "title": "Avisos",
+    "empty": "Sem avisos por agora",
+    "loadError": "Não foi possível carregar os avisos",
+    "readMore": "Saber mais →",
+    "priority": {
+      "INFO": "Informação",
+      "WARNING": "Atenção",
+      "IMPORTANT": "Importante"
+    }
+  },
+  "more": {
+    "title": "Mais",
+    "congressInfo": "Informação do Congresso",
+    "preferences": "Preferências",
+    "appearance": "Aparência",
+    "themeLight": "Claro",
+    "themeDark": "Escuro",
+    "themeSystem": "Sistema",
+    "language": "Idioma",
+    "enableNotifications": "Ativar notificações",
+    "pushSubscribed": "Notificações ativadas.",
+    "pushDenied": "Permissão de notificações negada.",
+    "pushIosNotInstalled": "No iPhone, as notificações só funcionam depois de instalar a aplicação no ecrã principal (Partilhar → Adicionar ao Ecrã Principal) e abri-la a partir daí. Requer iOS 16.4 ou superior.",
+    "pushUnsupported": "O seu navegador não suporta notificações.",
+    "pushDisabled": "Notificações push não estão configuradas neste evento.",
+    "legal": "Legal",
+    "logout": "Terminar sessão",
+    "deleteAccount": "Apagar os meus dados desta aplicação",
+    "deleteAccountConfirm": "Isto apaga permanentemente os seus dados desta aplicação (o registo no Pretix não é afetado). Continuar?",
+    "viewTicket": "Ver bilhete",
+    "links": {
+      "about": "Sobre o Congresso",
+      "venue": "Local",
+      "directions": "Como Chegar",
+      "parking": "Estacionamento",
+      "accommodation": "Alojamento",
+      "food": "Alimentação",
+      "sponsors": "Patrocinadores",
+      "committee": "Comissão Organizadora",
+      "contacts": "Contactos",
+      "privacy": "Política de Privacidade",
+      "terms": "Termos e Condições"
+    }
+  },
+  "login": {
+    "title": "Entrar com bilhete",
+    "subtitle": "Aponte a câmara para o código QR impresso no seu bilhete do Pretix.",
+    "preparingCamera": "A preparar a câmara…",
+    "cameraDenied": "Permissão de câmara negada. Ative o acesso à câmara nas definições do navegador ou insira o código manualmente.",
+    "cameraUnavailable": "Não foi possível aceder à câmara. Insira o código manualmente.",
+    "validating": "A validar bilhete…",
+    "manualToggleShow": "Introduzir código manualmente",
+    "manualToggleHide": "Ocultar",
+    "manualPlaceholder": "Código do bilhete",
+    "submit": "Entrar",
+    "qrUnreadable": "Não foi possível ler o QR code."
+  },
+  "ticket": {
+    "title": "Meu Bilhete",
+    "cardLabel": "Bilhete · SPMC 2027",
+    "checkedIn": "Check-in feito",
+    "notCheckedIn": "Check-in por fazer",
+    "category": "Categoria",
+    "variation": "Variante",
+    "workshop": "Workshop",
+    "email": "Email",
+    "notice": "Este ecrã identifica-o como participante na aplicação. Para o check-in físico no congresso, utilize o bilhete original (PDF/email) enviado pelo Pretix. O estado do check-in é atualizado sempre que abrir este ecrã."
+  },
+  "content": {
+    "notAvailable": "Página não disponível"
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "hint": "Verifique o endereço ou volte ao início.",
+    "cta": "Início"
+  },
+  "install": {
+    "dialogAria": "Instalar aplicação",
+    "title": "Instalar SPMC 2027",
+    "iosHint": "Toque em Partilhar e depois em \"Adicionar ao Ecrã Principal\".",
+    "genericHint": "Acesso rápido e utilização offline do programa.",
+    "installCta": "Instalar",
+    "dismissCta": "Agora não"
+  },
+  "errors": {
+    "networkError": "Não foi possível ligar ao servidor.",
+    "invalidTicket": "Este bilhete não é válido.",
+    "unreadableQr": "Não foi possível ler o QR code."
+  }
+}

@@ -4,6 +4,7 @@ import TopNav from '@/components/TopNav.vue';
 import BottomNav from '@/components/BottomNav.vue';
 import OfflineBanner from '@/components/OfflineBanner.vue';
 import InstallPrompt from '@/components/InstallPrompt.vue';
+import OnboardingPrompt from '@/components/OnboardingPrompt.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useProgramStore } from '@/stores/program';
 import { useAnnouncementsStore } from '@/stores/announcements';
@@ -30,5 +31,6 @@ onMounted(async () => {
   </main>
   <BottomNav />
   <InstallPrompt />
+  <OnboardingPrompt />
 </template>
 

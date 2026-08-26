@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import { useOnlineStatus } from '@/composables/useOnlineStatus';
 import Icon from '@/components/Icon.vue';
 
 const { isOnline } = useOnlineStatus();
+const { t } = useI18n();
 </script>
 
 <template>
@@ -18,7 +20,7 @@ const { isOnline } = useOnlineStatus();
       role="status"
     >
       <Icon name="wifiOff" class="w-4 h-4" />
-      Sem ligação à Internet. O programa guardado continua disponível.
+      {{ t('common.offline') }}
     </div>
   </Transition>
 </template>

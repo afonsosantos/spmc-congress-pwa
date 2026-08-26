@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import Icon from '@/components/Icon.vue';
 import SessionCard from '@/components/SessionCard.vue';
 import SkeletonList from '@/components/SkeletonList.vue';
@@ -7,6 +8,7 @@ import EmptyState from '@/components/EmptyState.vue';
 import { useProgramStore } from '@/stores/program';
 import { formatDate, dayKey } from '@/lib/format';
 
+const { t } = useI18n();
 const program = useProgramStore();
 
 onMounted(() => {
@@ -64,7 +66,7 @@ function clearFilters() {
 
 <template>
   <div class="max-w-3xl mx-auto px-4 pt-6 pb-8 md:px-8">
-    <h1 class="text-xl font-bold mb-4">Programa</h1>
+    <h1 class="text-xl font-bold mb-4">{{ t('program.title') }}</h1>
 
     <div class="flex gap-2 mb-4">
       <div class="relative flex-1">
@@ -72,7 +74,7 @@ function clearFilters() {
         <input
           v-model="query"
           type="search"
-          placeholder="Pesquisar sessões, oradores, salas…"
+          :placeholder="t('program.searchPlaceholder')"
           class="w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600"
         />
       </div>
@@ -80,7 +82,7 @@ function clearFilters() {
         type="button"
         class="relative shrink-0 w-11 h-11 grid place-items-center rounded-xl border border-slate-200 dark:border-slate-800"
         @click="showFilters = !showFilters"
-        aria-label="Filtros"
+        :aria-label="t('program.filters')"
       >
         <Icon name="filter" class="w-5 h-5" />
         <span
@@ -93,7 +95,7 @@ function clearFilters() {
 
     <div v-if="showFilters" class="mb-4 space-y-3 rounded-2xl border border-slate-200 dark:border-slate-800 p-4">
       <div>
-        <p class="text-xs font-semibold text-slate-500 mb-1.5">Dia</p>
+        <p class="text-xs font-semibold text-slate-500 mb-1.5">{{ t('program.day') }}</p>
         <div class="flex flex-wrap gap-2">
           <button
             v-for="d in days"
@@ -108,7 +110,7 @@ function clearFilters() {
         </div>
       </div>
       <div>
-        <p class="text-xs font-semibold text-slate-500 mb-1.5">Sala</p>
+        <p class="text-xs font-semibold text-slate-500 mb-1.5">{{ t('program.room') }}</p>
         <div class="flex flex-wrap gap-2">
           <button
             v-for="r in program.rooms"
@@ -123,22 +125,22 @@ function clearFilters() {
         </div>
       </div>
       <div>
-        <p class="text-xs font-semibold text-slate-500 mb-1.5">Área</p>
+        <p class="text-xs font-semibold text-slate-500 mb-1.5">{{ t('program.track') }}</p>
         <div class="flex flex-wrap gap-2">
           <button
-            v-for="t in program.tracks"
-            :key="t.id"
+            v-for="track in program.tracks"
+            :key="track.id"
             type="button"
             class="px-3 py-1.5 rounded-full text-xs font-medium border"
-            :class="trackFilter === t.id ? 'bg-brand-700 text-white border-brand-700' : 'border-slate-200 dark:border-slate-700'"
-            @click="trackFilter = trackFilter === t.id ? null : t.id"
+            :class="trackFilter === track.id ? 'bg-brand-700 text-white border-brand-700' : 'border-slate-200 dark:border-slate-700'"
+            @click="trackFilter = trackFilter === track.id ? null : track.id"
           >
-            {{ t.name }}
+            {{ track.name }}
           </button>
         </div>
       </div>
       <button v-if="activeFilterCount" type="button" class="text-xs font-semibold text-brand-700 dark:text-brand-400" @click="clearFilters">
-        Limpar filtros
+        {{ t('program.clearFilters') }}
       </button>
     </div>
 
@@ -146,10 +148,10 @@ function clearFilters() {
     <EmptyState
       v-else-if="program.status === 'error' && !program.sessions.length"
       icon="wifiOff"
-      title="Não foi possível carregar o programa"
-      message="Verifique a sua ligação à Internet."
+      :title="t('program.loadError')"
+      :message="t('program.loadErrorHint')"
     />
-    <EmptyState v-else-if="!filtered.length" icon="search" title="Sem resultados" message="Tente outra pesquisa ou remova filtros." />
+    <EmptyState v-else-if="!filtered.length" icon="search" :title="t('program.noResults')" :message="t('program.noResultsHint')" />
 
     <div v-else class="space-y-6">
       <section v-for="[day, sessions] in grouped" :key="day">
@@ -161,4 +163,3 @@ function clearFilters() {
     </div>
   </div>
 </template>
-

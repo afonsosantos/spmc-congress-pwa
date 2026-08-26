@@ -1,18 +1,21 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { RouterLink, useRoute } from 'vue-router';
 import Icon from '@/components/Icon.vue';
 import { useAnnouncementsStore } from '@/stores/announcements';
 
 const route = useRoute();
 const announcements = useAnnouncementsStore();
+const { t } = useI18n();
 
-const items = [
-  { to: '/', name: 'home', label: 'Início', icon: 'home' },
-  { to: '/programa', name: 'program', label: 'Programa', icon: 'program' },
-  { to: '/meu-horario', name: 'my-schedule', label: 'Horário', icon: 'schedule' },
-  { to: '/anuncios', name: 'announcements', label: 'Avisos', icon: 'bell' },
-  { to: '/mais', name: 'more', label: 'Mais', icon: 'more' },
-];
+const items = computed(() => [
+  { to: '/', name: 'home', label: t('nav.home'), icon: 'home' },
+  { to: '/programa', name: 'program', label: t('nav.program'), icon: 'program' },
+  { to: '/meu-horario', name: 'my-schedule', label: t('nav.myScheduleShort'), icon: 'schedule' },
+  { to: '/anuncios', name: 'announcements', label: t('nav.announcements'), icon: 'bell' },
+  { to: '/mais', name: 'more', label: t('nav.more'), icon: 'more' },
+]);
 
 function isActive(name: string) {
   return route.name === name;
@@ -22,7 +25,7 @@ function isActive(name: string) {
 <template>
   <nav
     class="fixed bottom-0 inset-x-0 z-40 md:hidden bg-white/95 dark:bg-slate-950/95 backdrop-blur border-t border-slate-200 dark:border-slate-800 safe-bottom"
-    aria-label="Navegação principal"
+    :aria-label="t('common.mainNavigation')"
   >
     <ul class="grid grid-cols-5">
       <li v-for="item in items" :key="item.name">
@@ -46,4 +49,3 @@ function isActive(name: string) {
     </ul>
   </nav>
 </template>
-

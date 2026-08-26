@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/Icon.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useScheduleStore } from '@/stores/schedule';
 import { useTheme } from '@/composables/useTheme';
 import { subscribeToPush } from '@/lib/push';
+import { SUPPORTED_LOCALES, setLocale, type SupportedLocale } from '@/lib/i18n';
 
+const { t, locale } = useI18n();
 const auth = useAuthStore();
 const schedule = useScheduleStore();
 const router = useRouter();
@@ -15,22 +18,32 @@ const { theme, setTheme } = useTheme();
 const pushStatus = ref<string | null>(null);
 const deleting = ref(false);
 
-const infoLinks = [
-  { slug: 'about', label: 'Sobre o Congresso', icon: 'info' },
-  { slug: 'venue', label: 'Local', icon: 'building' },
-  { slug: 'directions', label: 'Como Chegar', icon: 'location' },
-  { slug: 'parking', label: 'Estacionamento', icon: 'car' },
-  { slug: 'accommodation', label: 'Alojamento', icon: 'bed' },
-  { slug: 'food', label: 'Alimentação', icon: 'food' },
-  { slug: 'sponsors', label: 'Patrocinadores', icon: 'heart' },
-  { slug: 'committee', label: 'Comissão Organizadora', icon: 'user' },
-  { slug: 'contacts', label: 'Contactos', icon: 'contact' },
-];
+// Language names are conventionally shown in their own language, not
+// translated into the currently active one.
+const localeLabels: Record<SupportedLocale, string> = { 'pt-PT': 'Português', 'en-US': 'English' };
 
-const legalLinks = [
-  { slug: 'privacy', label: 'Política de Privacidade', icon: 'shield' },
-  { slug: 'terms', label: 'Termos e Condições', icon: 'doc' },
-];
+const infoLinks = computed(() => [
+  { slug: 'about', label: t('more.links.about'), icon: 'info' },
+  { slug: 'venue', label: t('more.links.venue'), icon: 'building' },
+  { slug: 'directions', label: t('more.links.directions'), icon: 'location' },
+  { slug: 'parking', label: t('more.links.parking'), icon: 'car' },
+  { slug: 'accommodation', label: t('more.links.accommodation'), icon: 'bed' },
+  { slug: 'food', label: t('more.links.food'), icon: 'food' },
+  { slug: 'sponsors', label: t('more.links.sponsors'), icon: 'heart' },
+  { slug: 'committee', label: t('more.links.committee'), icon: 'user' },
+  { slug: 'contacts', label: t('more.links.contacts'), icon: 'contact' },
+]);
+
+const legalLinks = computed(() => [
+  { slug: 'privacy', label: t('more.links.privacy'), icon: 'shield' },
+  { slug: 'terms', label: t('more.links.terms'), icon: 'doc' },
+]);
+
+const themeOptions = computed(() => [
+  { v: 'light', l: t('more.themeLight') },
+  { v: 'dark', l: t('more.themeDark') },
+  { v: 'system', l: t('more.themeSystem') },
+]);
 
 async function handleLogout() {
   await auth.logout();
@@ -42,18 +55,18 @@ async function enablePush() {
   const result = await subscribeToPush();
   pushStatus.value =
     result === 'subscribed'
-      ? 'Notificações ativadas.'
+      ? t('more.pushSubscribed')
       : result === 'denied'
-        ? 'Permissão de notificações negada.'
+        ? t('more.pushDenied')
         : result === 'ios-not-installed'
-          ? 'No iPhone, as notificações só funcionam depois de instalar a aplicação no ecrã principal (Partilhar → Adicionar ao Ecrã Principal) e abri-la a partir daí. Requer iOS 16.4 ou superior.'
+          ? t('more.pushIosNotInstalled')
           : result === 'unsupported'
-            ? 'O seu navegador não suporta notificações.'
-            : 'Notificações push não estão configuradas neste evento.';
+            ? t('more.pushUnsupported')
+            : t('more.pushDisabled');
 }
 
 async function deleteAccount() {
-  if (!confirm('Isto apaga permanentemente os seus dados desta aplicação (o registo no Pretix não é afetado). Continuar?')) return;
+  if (!confirm(t('more.deleteAccountConfirm'))) return;
   deleting.value = true;
   try {
     await fetch('/api/me', { method: 'DELETE', credentials: 'include' });
@@ -68,22 +81,22 @@ async function deleteAccount() {
 
 <template>
   <div class="max-w-2xl mx-auto px-4 pt-6 pb-8 md:px-8 space-y-6">
-    <h1 class="text-xl font-bold">Mais</h1>
+    <h1 class="text-xl font-bold">{{ t('more.title') }}</h1>
 
     <section v-if="auth.isAuthenticated" class="rounded-2xl border border-slate-200 dark:border-slate-800 p-4">
       <p class="font-semibold">{{ auth.user?.name }}</p>
       <p class="text-sm text-slate-500 dark:text-slate-400">{{ auth.user?.ticket.product }}</p>
       <RouterLink to="/bilhete" class="inline-flex items-center gap-1.5 mt-3 text-sm font-semibold text-brand-700 dark:text-brand-400">
-        <Icon name="ticket" class="w-4 h-4" /> Ver bilhete
+        <Icon name="ticket" class="w-4 h-4" /> {{ t('more.viewTicket') }}
       </RouterLink>
     </section>
     <RouterLink v-else to="/entrar" class="flex items-center justify-between rounded-2xl bg-brand-700 text-white px-5 py-4">
-      <span class="font-semibold flex items-center gap-2"><Icon name="qr" class="w-5 h-5" /> Entrar com bilhete</span>
+      <span class="font-semibold flex items-center gap-2"><Icon name="qr" class="w-5 h-5" /> {{ t('nav.loginWithTicket') }}</span>
       <Icon name="chevronRight" class="w-5 h-5" />
     </RouterLink>
 
     <section>
-      <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Informação do Congresso</h2>
+      <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">{{ t('more.congressInfo') }}</h2>
       <div class="rounded-2xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 overflow-hidden">
         <RouterLink v-for="l in infoLinks" :key="l.slug" :to="`/info/${l.slug}`" class="flex items-center justify-between px-4 py-3">
           <span class="flex items-center gap-3 text-sm font-medium"><Icon :name="l.icon" class="w-4 h-4 text-slate-400" />{{ l.label }}</span>
@@ -93,13 +106,28 @@ async function deleteAccount() {
     </section>
 
     <section>
-      <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Preferências</h2>
+      <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">{{ t('more.preferences') }}</h2>
       <div class="rounded-2xl border border-slate-200 dark:border-slate-800 p-4 space-y-4">
         <div>
-          <p class="text-sm font-medium mb-2">Aparência</p>
+          <p class="text-sm font-medium mb-2">{{ t('more.language') }}</p>
           <div class="flex gap-2">
             <button
-              v-for="opt in [{ v: 'light', l: 'Claro' }, { v: 'dark', l: 'Escuro' }, { v: 'system', l: 'Sistema' }]"
+              v-for="code in SUPPORTED_LOCALES"
+              :key="code"
+              type="button"
+              class="px-3 py-1.5 rounded-full text-xs font-medium border"
+              :class="locale === code ? 'bg-brand-700 text-white border-brand-700' : 'border-slate-200 dark:border-slate-700'"
+              @click="setLocale(code)"
+            >
+              {{ localeLabels[code] }}
+            </button>
+          </div>
+        </div>
+        <div>
+          <p class="text-sm font-medium mb-2">{{ t('more.appearance') }}</p>
+          <div class="flex gap-2">
+            <button
+              v-for="opt in themeOptions"
               :key="opt.v"
               type="button"
               class="px-3 py-1.5 rounded-full text-xs font-medium border"
@@ -112,7 +140,7 @@ async function deleteAccount() {
         </div>
         <div>
           <button type="button" class="text-sm font-semibold text-brand-700 dark:text-brand-400" @click="enablePush">
-            Ativar notificações
+            {{ t('more.enableNotifications') }}
           </button>
           <p v-if="pushStatus" class="text-xs text-slate-500 mt-1">{{ pushStatus }}</p>
         </div>
@@ -120,7 +148,7 @@ async function deleteAccount() {
     </section>
 
     <section>
-      <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Legal</h2>
+      <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">{{ t('more.legal') }}</h2>
       <div class="rounded-2xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 overflow-hidden">
         <RouterLink v-for="l in legalLinks" :key="l.slug" :to="`/info/${l.slug}`" class="flex items-center justify-between px-4 py-3">
           <span class="flex items-center gap-3 text-sm font-medium"><Icon :name="l.icon" class="w-4 h-4 text-slate-400" />{{ l.label }}</span>
@@ -131,7 +159,7 @@ async function deleteAccount() {
 
     <section v-if="auth.isAuthenticated" class="space-y-2">
       <button type="button" class="w-full text-left px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 text-sm font-medium flex items-center gap-3" @click="handleLogout">
-        <Icon name="logout" class="w-4 h-4" /> Terminar sessão
+        <Icon name="logout" class="w-4 h-4" /> {{ t('more.logout') }}
       </button>
       <button
         type="button"
@@ -139,9 +167,8 @@ async function deleteAccount() {
         :disabled="deleting"
         @click="deleteAccount"
       >
-        Apagar os meus dados desta aplicação
+        {{ t('more.deleteAccount') }}
       </button>
     </section>
   </div>
 </template>
-

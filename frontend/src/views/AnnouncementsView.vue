@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import PriorityBadge from '@/components/PriorityBadge.vue';
 import EmptyState from '@/components/EmptyState.vue';
 import SkeletonList from '@/components/SkeletonList.vue';
 import { useAnnouncementsStore } from '@/stores/announcements';
 import { formatDate, formatTime } from '@/lib/format';
 
+const { t } = useI18n();
 const announcements = useAnnouncementsStore();
 
 onMounted(async () => {
@@ -18,15 +20,15 @@ onMounted(async () => {
 
 <template>
   <div class="max-w-2xl mx-auto px-4 pt-6 pb-8 md:px-8">
-    <h1 class="text-xl font-bold mb-4">Avisos</h1>
+    <h1 class="text-xl font-bold mb-4">{{ t('announcements.title') }}</h1>
 
     <SkeletonList v-if="announcements.status === 'loading' && !announcements.announcements.length" />
     <EmptyState
       v-else-if="announcements.status === 'error' && !announcements.announcements.length"
       icon="wifiOff"
-      title="Não foi possível carregar os avisos"
+      :title="t('announcements.loadError')"
     />
-    <EmptyState v-else-if="!announcements.announcements.length" icon="bell" title="Sem avisos por agora" />
+    <EmptyState v-else-if="!announcements.announcements.length" icon="bell" :title="t('announcements.empty')" />
 
     <div v-else class="space-y-3">
       <article
@@ -43,7 +45,7 @@ onMounted(async () => {
         <p class="text-sm text-slate-600 dark:text-slate-300 mt-1 whitespace-pre-line">{{ a.body }}</p>
         <img v-if="a.imageUrl" :src="a.imageUrl" alt="" class="mt-3 rounded-xl w-full object-cover max-h-52" />
         <a v-if="a.link" :href="a.link" target="_blank" rel="noopener" class="inline-block mt-3 text-sm font-semibold text-brand-700 dark:text-brand-400">
-          Saber mais →
+          {{ t('announcements.readMore') }}
         </a>
       </article>
     </div>
