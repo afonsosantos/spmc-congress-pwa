@@ -26,8 +26,9 @@ bun test                # runs scripts/run-tests.ts, which shells out to `bun te
 # frontend
 bun run dev             # vite, HTTPS via @vitejs/plugin-basic-ssl (self-signed) — needed for
                         # camera access when testing the QR scanner from a phone on the LAN
-bun run build            # vue-tsc -b && vite build (still needs an actual bundler — Bun doesn't
-                        # replace Vite here, it's just the package manager/script runner)
+bun run build            # vite build only (still needs an actual bundler — Bun doesn't replace
+                        # Vite here, it's just the package manager/script runner)
+bun run typecheck       # vue-tsc -b — deliberately NOT part of `build` (see note below)
 bun test                 # bun:test, test/pretixQr.test.ts
 ```
 
@@ -60,6 +61,8 @@ No Pretalx credentials exist anywhere in this app — the public API returns con
 Routes (`backend/src/routes/*.ts`) are thin; behavior lives in `backend/src/services/*.ts`. `backend/src/app.ts` wires Helmet/CORS/rate-limiting/cookies, mounts routers under `/api/*`, and — when `backend/public/` exists (populated by the Docker build copying the frontend's `dist/`) — serves the built SPA with a catch-all fallback. `express-async-errors` is imported for side effects so async route handlers don't need manual try/catch to reach the error middleware.
 
 There's no `dist/` — the backend runs straight from `src/` under Bun, in dev and in the production image alike. `tsc` only ever runs via `bun run typecheck`, never as part of starting or deploying the app.
+
+**Frontend `build` doesn't type-check either, for a Bun-specific reason.** `vue-tsc`'s bin has a `#!/usr/bin/env node` shebang; Bun intercepts that and runs it under its own JS engine rather than real Node (there's no separate `node` binary in the `oven/bun` image). Under that path, `vue-tsc -b` fails to resolve `.vue` SFC modules at all (`TS2307: Cannot find module './App.vue'`) — reproduced only inside the Alpine/Bun container, not on Node, and not with a plain `bun install` + `vue-tsc` on Windows either, so it looks like a Bun-runtime-specific quirk in how `vue-tsc` walks the module graph, not a real dependency/lockfile problem. Root cause wasn't fully chased down (no Linux+Bun sandbox to poke at it in); the pragmatic fix was to stop gating the Docker build on it, mirroring the backend's `typecheck`-is-separate approach. Run `bun run typecheck` yourself before relying on type safety — CI doesn't.
 
 Sessions/favourites/announcements/push-subscriptions/content-pages live in Postgres (`backend/src/db/migrations/`); there's no ORM — raw `pg` queries via `backend/src/db/pool.ts`. Migrations are plain numbered `.sql` files tracked in a `schema_migrations` table, applied by `backend/src/db/migrate.ts` (also invoked automatically at server startup in `index.ts`).
 
