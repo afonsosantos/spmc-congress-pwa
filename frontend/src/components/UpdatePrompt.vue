@@ -15,7 +15,7 @@ const { needRefresh, updateServiceWorker } = useRegisterSW();
   >
     <div
       v-if="needRefresh"
-      class="fixed z-50 bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm rounded-2xl bg-brand-700 text-white px-4 py-3 shadow-lg flex items-center justify-between gap-3"
+      class="fixed z-50 bottom-[calc(5rem+env(safe-area-inset-bottom))] lg:bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm rounded-2xl bg-brand-700 text-white px-4 py-3 shadow-lg flex items-center justify-between gap-3"
     >
       <span class="text-sm font-medium">{{ t('update.available') }}</span>
       <button

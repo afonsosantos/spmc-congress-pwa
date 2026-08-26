@@ -97,7 +97,7 @@ onUnmounted(() => {
   >
     <div
       v-if="visible"
-      class="fixed inset-x-0 bottom-16 md:bottom-4 z-40 mx-auto max-w-md px-4"
+      class="fixed inset-x-0 bottom-16 lg:bottom-4 z-40 mx-auto max-w-md px-4"
       role="dialog"
       :aria-label="t('install.dialogAria')"
     >

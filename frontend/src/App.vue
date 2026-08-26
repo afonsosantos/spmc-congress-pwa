@@ -30,7 +30,7 @@ onMounted(async () => {
   <RouteProgressBar />
   <OfflineBanner />
   <TopNav />
-  <main class="min-h-[calc(100dvh-4rem)] pb-20 md:pb-10">
+  <main class="min-h-[calc(100dvh-4rem)] pb-20 lg:pb-10">
     <RouterView v-slot="{ Component }">
       <Transition name="page" mode="out-in">
         <component :is="Component" />

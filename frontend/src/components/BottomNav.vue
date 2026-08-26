@@ -24,7 +24,7 @@ function isActive(name: string) {
 
 <template>
   <nav
-    class="fixed bottom-0 inset-x-0 z-40 md:hidden bg-cream/95 dark:bg-slate-950/95 backdrop-blur border-t border-slate-200 dark:border-slate-800 safe-bottom"
+    class="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-cream/95 dark:bg-slate-950/95 backdrop-blur border-t border-slate-200 dark:border-slate-800 safe-bottom"
     :aria-label="t('common.mainNavigation')"
   >
     <ul class="grid grid-cols-5">
