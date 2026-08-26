@@ -93,8 +93,11 @@ export const PretixService = {
     if (position.valid_from && new Date(position.valid_from).getTime() > now) return null;
     if (position.valid_until && new Date(position.valid_until).getTime() < now) return null;
 
+    // Per spec, only a cancelled (or lapsed/expired) order should block
+    // login — a pending order (e.g. awaiting a bank transfer) should not.
+    // Deliberately not requiring status === 'p' (paid).
     const order = await this.getOrder(position.order);
-    if (!order || order.status !== 'p') return null;
+    if (!order || order.status === 'c' || order.status === 'e') return null;
 
     return { ...position, orderEmail: order.email };
   },

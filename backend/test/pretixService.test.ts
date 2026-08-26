@@ -62,16 +62,41 @@ test('cancelled position is rejected', async () => {
   expect(position).toBeNull();
 });
 
-test('position on a cancelled/unpaid order is rejected', async () => {
+test('position on a cancelled order is rejected', async () => {
   global.fetch = (async (url: string) => {
     if (String(url).includes('/orderpositions/')) {
-      return jsonResponse({ results: [{ id: 3, order: 'UNPAID', item: 10, canceled: false, blocked: null, valid_from: null, valid_until: null, answers: [] }] });
+      return jsonResponse({ results: [{ id: 3, order: 'CXORDER', item: 10, canceled: false, blocked: null, valid_from: null, valid_until: null, answers: [] }] });
     }
-    return jsonResponse({ code: 'UNPAID', status: 'c' });
+    return jsonResponse({ code: 'CXORDER', status: 'c' });
   }) as unknown as typeof fetch;
 
-  const position = await PretixService.findValidPositionBySecret('unpaidsecret1234');
+  const position = await PretixService.findValidPositionBySecret('cxordersecret123');
   expect(position).toBeNull();
+});
+
+test('position on an expired order is rejected', async () => {
+  global.fetch = (async (url: string) => {
+    if (String(url).includes('/orderpositions/')) {
+      return jsonResponse({ results: [{ id: 6, order: 'EXPIRED', item: 10, canceled: false, blocked: null, valid_from: null, valid_until: null, answers: [] }] });
+    }
+    return jsonResponse({ code: 'EXPIRED', status: 'e' });
+  }) as unknown as typeof fetch;
+
+  const position = await PretixService.findValidPositionBySecret('expiredsecret123');
+  expect(position).toBeNull();
+});
+
+test('position on a pending (unpaid) order is still accepted — only cancelled/expired orders block login', async () => {
+  global.fetch = (async (url: string) => {
+    if (String(url).includes('/orderpositions/')) {
+      return jsonResponse({ results: [{ id: 7, order: 'PENDING', item: 10, canceled: false, blocked: null, valid_from: null, valid_until: null, answers: [] }] });
+    }
+    return jsonResponse({ code: 'PENDING', status: 'n' });
+  }) as unknown as typeof fetch;
+
+  const position = await PretixService.findValidPositionBySecret('pendingsecret123');
+  expect(position).toBeTruthy();
+  expect(position?.order).toBe('PENDING');
 });
 
 test('blocked position is rejected', async () => {
