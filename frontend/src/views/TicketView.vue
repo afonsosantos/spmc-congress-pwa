@@ -33,7 +33,7 @@ watch(
 </script>
 
 <template>
-  <div v-if="auth.user" class="fixed inset-0 z-50 overflow-y-auto bg-gradient-to-b from-sky-600 to-sky-900">
+  <div v-if="auth.user" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-xl">
     <div class="max-w-md mx-auto px-4 pt-6 pb-10 md:px-8">
       <div class="flex items-center justify-between mb-4">
         <h1 class="text-xl font-bold text-white">{{ t('ticket.title') }}</h1>
