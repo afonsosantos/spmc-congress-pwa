@@ -6,6 +6,11 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-spmc_congresso}
       POSTGRES_USER: ${POSTGRES_USER:-spmc}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    ports:
+      # Exposed to the host so `bun run dev` (running outside Docker) can
+      # reach it too — only the app service needs the internal `postgres`
+      # hostname.
+      - '${POSTGRES_PORT:-5432}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -13,40 +18,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-    ports:
-      - '${PORT:-3000}:3000'
-    environment:
-      NODE_ENV: ${NODE_ENV:-production}
-      PORT: 3000
-      DATABASE_URL: ${DATABASE_URL:-postgres://${POSTGRES_USER:-spmc}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-spmc_congresso}}
-      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
-      CORS_ORIGIN: ${CORS_ORIGIN:-}
-      PRETIX_BASE_URL: ${PRETIX_BASE_URL:?PRETIX_BASE_URL is required}
-      PRETIX_ORGANIZER: ${PRETIX_ORGANIZER:?PRETIX_ORGANIZER is required}
-      PRETIX_EVENT: ${PRETIX_EVENT:?PRETIX_EVENT is required}
-      PRETIX_API_TOKEN: ${PRETIX_API_TOKEN:?PRETIX_API_TOKEN is required}
-      PRETALX_BASE_URL: ${PRETALX_BASE_URL:?PRETALX_BASE_URL is required}
-      PRETALX_EVENT: ${PRETALX_EVENT:?PRETALX_EVENT is required}
-      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
-      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
-      VAPID_SUBJECT: ${VAPID_SUBJECT:-}
-      ADMIN_USERNAME: ${ADMIN_USERNAME:-}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
-    healthcheck:
-      test: ['CMD-SHELL', "bun -e \"fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
 
 volumes:
   postgres_data:
