@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    overscroll-behavior-y: none;
+    /* Base colors — kept here (not in nuxt.config.ts's bodyAttrs) because
+       Tailwind's content scanner only sees class names inside app/, never
+       nuxt.config.ts; @apply doesn't have that problem since these
+       utilities are generated from the theme directly. */
+    @apply bg-cream text-slate-900 dark:bg-slate-950 dark:text-slate-100;
+  }
+  /* Editorial serif headings, matching congresso-spmc.com's Georgia headlines. */
+  h1,
+  h2 {
+    @apply font-serif;
+  }
+}
+
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .skeleton {
+    @apply relative overflow-hidden bg-slate-200 dark:bg-slate-800 rounded;
+  }
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.35), transparent);
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+  .dark .skeleton::after {
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.08), transparent);
+  }
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
+}
+
+/* Screen-change transition. Kept short and subtle — a quick fade with a
+   slight vertical settle, not a slide/zoom production. */
+.page-enter-active,
+.page-leave-active {
+  transition:
+    opacity 0.16s ease,
+    transform 0.16s ease;
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(4px);
+}
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter-active,
+  .page-leave-active {
+    transition: none;
+  }
+}

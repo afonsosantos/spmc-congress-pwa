@@ -1,6 +1,8 @@
 node_modules/
 dist/
 *.tsbuildinfo
+.nuxt/
+.output/
 
 .env
 .env.*
@@ -12,3 +14,4 @@ npm-debug.log*
 Thumbs.db
 
 .claude/
+.idea/

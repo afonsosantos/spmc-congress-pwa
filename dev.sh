@@ -1,14 +1,9 @@
 #!/usr/bin/env bash
-# Runs backend and frontend dev servers together. Ctrl-C stops both.
+# Runs the Nuxt dev server (app + API on one port).
 set -e
-trap 'kill 0' EXIT
 
 if [ -f .env.local ]; then
-  (cd backend && bun --env-file=../.env.local --watch src/index.ts) &
+  bun --env-file=.env.local run dev
 else
-  (cd backend && bun run dev) &
+  bun run dev
 fi
-
-(cd frontend && bun run dev) &
-
-wait
